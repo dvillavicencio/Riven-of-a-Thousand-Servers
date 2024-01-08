@@ -3,9 +3,8 @@ package com.danielvm.destiny2bot.factory;
 import static org.mockito.Mockito.when;
 
 import com.danielvm.destiny2bot.dto.WeeklyActivity;
-import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
-import com.danielvm.destiny2bot.enums.ActivityModeEnum;
-import com.danielvm.destiny2bot.enums.InteractionResponseEnum;
+import com.danielvm.destiny2bot.enums.ActivityMode;
+import com.danielvm.destiny2bot.enums.InteractionResponse;
 import com.danielvm.destiny2bot.service.WeeklyActivitiesService;
 import com.danielvm.destiny2bot.util.MessageUtil;
 import java.time.ZonedDateTime;
@@ -34,11 +33,11 @@ public class WeeklyRaidMessageCreatorTest {
   public void createMessageIsSuccessful() {
     WeeklyActivity weeklyActivity = new WeeklyActivity(
         "dungeon", "description", ZonedDateTime.now(), ZonedDateTime.now());
-    when(weeklyActivitiesService.getWeeklyActivity(ActivityModeEnum.RAID))
+    when(weeklyActivitiesService.getWeeklyActivity(ActivityMode.RAID))
         .thenReturn(Mono.just(weeklyActivity));
 
     // when: create message is called
-    FirstStep<InteractionResponse> response = StepVerifier.create(sut.createResponse());
+    FirstStep<com.danielvm.destiny2bot.dto.discord.InteractionResponse> response = StepVerifier.create(sut.createResponse());
 
     // then: the message created is correct
     String expectedMessage = WeeklyRaidMessageCreator.MESSAGE_TEMPLATE.formatted(weeklyActivity.getName(),
@@ -46,7 +45,7 @@ public class WeeklyRaidMessageCreatorTest {
     response
         .assertNext(ir -> {
           Assertions.assertThat(ir.getType())
-              .isEqualTo(InteractionResponseEnum.CHANNEL_MESSAGE_WITH_SOURCE.getType());
+              .isEqualTo(InteractionResponse.CHANNEL_MESSAGE_WITH_SOURCE.getType());
           Assertions.assertThat(ir.getData().getContent())
               .isEqualTo(expectedMessage);
         }).verifyComplete();

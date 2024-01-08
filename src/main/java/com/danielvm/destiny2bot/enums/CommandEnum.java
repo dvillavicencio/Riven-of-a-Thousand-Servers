@@ -6,16 +6,20 @@ import lombok.Getter;
 
 public enum CommandEnum {
 
-  AUTHORIZE("authorize"),
-  WEEKLY_DUNGEON("weekly_dungeon"),
-  WEEKLY_RAID("weekly_raid"),
-  RAID_STATS("raid_stats");
+  AUTHORIZE("authorize", false),
+  WEEKLY_DUNGEON("weekly_dungeon", false),
+  WEEKLY_RAID("weekly_raid", false),
+  RAID_STATS("raid_stats", true);
 
   @Getter
   private final String commandName;
 
-  CommandEnum(String commandName) {
+  @Getter
+  private final boolean authorized;
+
+  CommandEnum(String commandName, boolean authorized) {
     this.commandName = commandName;
+    this.authorized = authorized;
   }
 
   /**
@@ -29,8 +33,7 @@ public enum CommandEnum {
         .filter(e -> e.getCommandName().equalsIgnoreCase(commandName))
         .findFirst()
         .orElseThrow(() -> new ResourceNotFoundException(
-            "Command with name [%s] was not found".formatted(
-                commandName))); // this should never happen
+            "Command with name [%s] was not found".formatted(commandName)));
   }
 
 }

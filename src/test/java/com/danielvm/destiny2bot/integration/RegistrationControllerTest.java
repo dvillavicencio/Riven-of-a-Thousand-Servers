@@ -7,17 +7,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.danielvm.destiny2bot.config.BungieConfiguration;
+import com.danielvm.destiny2bot.dao.UserDetailsReactiveDao;
 import com.danielvm.destiny2bot.dto.discord.DiscordUser;
-import com.danielvm.destiny2bot.repository.UserDetailsRepository;
 import com.danielvm.destiny2bot.util.OAuth2Params;
 import com.danielvm.destiny2bot.util.OAuth2Util;
+import java.util.Objects;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,15 +21,20 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import reactor.test.StepVerifier;
 
 public class RegistrationControllerTest extends BaseIntegrationTest {
 
   static final String SESSION_COOKIE = "SESSION";
   @Autowired
   BungieConfiguration bungieConfiguration;
+
   @Autowired
-  UserDetailsRepository userDetailsRepository;
+  UserDetailsReactiveDao userDetailsReactiveDao;
 
   @Test
   @DisplayName("should save Discord user to httpSession after OAuth2 authorization")
@@ -41,9 +42,6 @@ public class RegistrationControllerTest extends BaseIntegrationTest {
 
     // given: a login attempt from Discord user is received
     var authorizationCode = "userAuthorizationCode";
-    var discordRequest = MockMvcRequestBuilders.get("/discord/callback")
-        .queryParam(OAuth2Params.CODE, authorizationCode)
-        .accept(MediaType.APPLICATION_JSON);
 
     stubFor(post(urlPathEqualTo("/api/oauth2/token"))
         .withHeader(HttpHeaders.CONTENT_TYPE,
@@ -72,35 +70,42 @@ public class RegistrationControllerTest extends BaseIntegrationTest {
             .withBodyFile("bungie/bungie-access-token.json")));
 
     // when: the discord callback request is received
-    var discordCallbackResponse = mockMvc.perform(discordRequest);
+    ResponseSpec discordCallbackResponse = webTestClient.get()
+        .uri("/discord/callback?code=" + authorizationCode)
+        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        .exchange();
 
     // then: the response is a redirect URI to Bungie OAuth2 Authorization Flow
-    discordCallbackResponse.andDo(print())
-        .andExpect(status().is3xxRedirection())
-        .andExpect(header().exists(HttpHeaders.LOCATION))
-        .andExpect(header().string(HttpHeaders.LOCATION,
+    discordCallbackResponse.expectStatus().is3xxRedirection()
+        .expectHeader().exists(HttpHeaders.LOCATION)
+        .expectHeader().valueEquals(
+            HttpHeaders.LOCATION,
             OAuth2Util.bungieAuthorizationUrl(bungieConfiguration.getAuthorizationUrl(),
-                bungieConfiguration.getClientId())));
+                bungieConfiguration.getClientId()));
 
-    var sessionCookie = discordCallbackResponse.andReturn().getResponse().getCookie(SESSION_COOKIE);
+    ResponseCookie sessionCookie = discordCallbackResponse.returnResult(ResponseEntity.class)
+        .getResponseCookies()
+        .getFirst(SESSION_COOKIE);
 
     // when: the bungie callback request is received
-    var bungieRequest = MockMvcRequestBuilders.get("/bungie/callback")
-        .queryParam(OAuth2Params.CODE, authorizationCode)
-        .cookie(sessionCookie)
-        .accept(MediaType.APPLICATION_JSON);
-    var bungieCallbackResponse = mockMvc.perform(bungieRequest);
+    ResponseSpec bungieRequest = webTestClient.get()
+        .uri("/bungie/callback?code=" + authorizationCode)
+        .cookie(SESSION_COOKIE, Objects.requireNonNull(sessionCookie).getValue())
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange();
 
     // then: bungie call back response returns status 204 NO_CONTENT
-    bungieCallbackResponse.andDo(print())
-        .andExpect(status().is2xxSuccessful())
-        .andExpect(status().isNoContent());
+    bungieRequest
+        .expectStatus().is2xxSuccessful()
+        .expectStatus().isNoContent();
 
     // and: the user is saved in the database
     var discordUserFile = new ClassPathResource("__files/discord/user-@me-response.json");
     var discordUser = objectMapper.readValue(discordUserFile.getFile(), DiscordUser.class);
 
-    assertThat(userDetailsRepository.existsByDiscordId(discordUser.getId())).isTrue();
+    StepVerifier.create(userDetailsReactiveDao.existsByDiscordId(discordUser.getId()))
+        .assertNext(Boolean.TRUE::equals)
+        .verifyComplete();
   }
 
   @Test
@@ -109,10 +114,6 @@ public class RegistrationControllerTest extends BaseIntegrationTest {
 
     // given: a login attempt from Discord user is received
     var authorizationCode = "userAuthorizationCode";
-    var discordRequest = MockMvcRequestBuilders.get("/discord/callback")
-        .queryParam(OAuth2Params.CODE, authorizationCode)
-        .accept(MediaType.APPLICATION_JSON);
-
     var discordErrorJson = """
         {
             "message": "401: Unauthorized",
@@ -131,25 +132,25 @@ public class RegistrationControllerTest extends BaseIntegrationTest {
             .withBody(discordErrorJson)));
 
     // when: the discord callback request from a login attempt is received
-    var response = mockMvc.perform(discordRequest);
+    ResponseSpec response = webTestClient.get()
+        .uri("/discord/callback?code=" + authorizationCode)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange();
 
     // then: the server returns a 4xx BAD_REQUEST status code
-    response.andDo(print())
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.detail").value(discordErrorJson))
-        .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()));
+    response
+        .expectStatus().isBadRequest()
+        .expectBody()
+        .jsonPath("$.detail").isEqualTo(discordErrorJson)
+        .jsonPath("$.status").isEqualTo(HttpStatus.BAD_REQUEST.value());
   }
 
   @Test
-  @DisplayName("user registration fails when Discord returns a 5xx error")
+  @DisplayName("user registration fails when Discord token call returns a 5xx error")
   public void userRegistrationFailsWhenDiscordReturns5xxError() throws Exception {
 
     // given: a login attempt from Discord user is received
     var authorizationCode = "userAuthorizationCode";
-    var discordRequest = MockMvcRequestBuilders.get("/discord/callback")
-        .queryParam(OAuth2Params.CODE, authorizationCode)
-        .accept(MediaType.APPLICATION_JSON);
-
     var discordErrorJson = """
         {
             "message": "500: Something bad happened",
@@ -168,13 +169,17 @@ public class RegistrationControllerTest extends BaseIntegrationTest {
             .withBody(discordErrorJson)));
 
     // when: the discord callback request from a login attempt is received
-    var response = mockMvc.perform(discordRequest);
+    ResponseSpec response = webTestClient.get()
+        .uri("/discord/callback?code=" + authorizationCode)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange();
 
     // then: the server returns a 5xx INTERNAL_SEVER status code
-    response.andDo(print())
-        .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.detail").value(discordErrorJson))
-        .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.value()));
+    response
+        .expectStatus().is5xxServerError()
+        .expectBody()
+        .jsonPath("$.detail").isEqualTo(discordErrorJson)
+        .jsonPath("$.status").isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
   }
 
   @Test
@@ -191,9 +196,6 @@ public class RegistrationControllerTest extends BaseIntegrationTest {
             "Message": "Please sign-in to continue.",
             "MessageData": {}
         }""";
-    var discordRequest = MockMvcRequestBuilders.get("/discord/callback")
-        .queryParam(OAuth2Params.CODE, authorizationCode)
-        .accept(MediaType.APPLICATION_JSON);
 
     stubFor(post(urlPathEqualTo("/api/oauth2/token"))
         .withHeader(HttpHeaders.CONTENT_TYPE,
@@ -222,30 +224,36 @@ public class RegistrationControllerTest extends BaseIntegrationTest {
             .withBody(bungieErrorJson)));
 
     // when: the discord callback request is received
-    var discordCallbackResponse = mockMvc.perform(discordRequest);
+    ResponseSpec discordCallbackResponse = webTestClient.get()
+        .uri("/discord/callback?code=" + authorizationCode)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange();
 
     // then: the response is a redirect URI to Bungie OAuth2 Authorization Flow
-    discordCallbackResponse.andDo(print())
-        .andExpect(status().is3xxRedirection())
-        .andExpect(header().exists(HttpHeaders.LOCATION))
-        .andExpect(header().string(HttpHeaders.LOCATION,
+    discordCallbackResponse
+        .expectStatus().is3xxRedirection()
+        .expectHeader().exists(HttpHeaders.LOCATION)
+        .expectHeader().valueEquals(HttpHeaders.LOCATION,
             OAuth2Util.bungieAuthorizationUrl(bungieConfiguration.getAuthorizationUrl(),
-                bungieConfiguration.getClientId())));
+                bungieConfiguration.getClientId()));
 
-    var sessionCookie = discordCallbackResponse.andReturn().getResponse().getCookie(SESSION_COOKIE);
+    ResponseCookie sessionCookie = discordCallbackResponse.returnResult(ResponseEntity.class)
+        .getResponseCookies()
+        .getFirst(SESSION_COOKIE);
 
     // when: the bungie callback request is received from a user login
-    var bungieRequest = MockMvcRequestBuilders.get("/bungie/callback")
-        .queryParam(OAuth2Params.CODE, authorizationCode)
-        .cookie(sessionCookie)
-        .accept(MediaType.APPLICATION_JSON);
-    var bungieCallbackResponse = mockMvc.perform(bungieRequest);
+    ResponseSpec bungieCallbackResponse = webTestClient.get()
+        .uri("/bungie/callback?code=" + authorizationCode)
+        .cookie(SESSION_COOKIE, Objects.requireNonNull(sessionCookie).getValue())
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange();
 
     // then: bungie call back response returns status a 500 INTERNAL_SERVER error
-    bungieCallbackResponse.andDo(print())
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.detail").value(bungieErrorJson))
-        .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()));
+    bungieCallbackResponse
+        .expectStatus().is4xxClientError()
+        .expectBody()
+        .jsonPath("$.detail").isEqualTo(bungieErrorJson)
+        .jsonPath("$.status").isEqualTo(HttpStatus.BAD_REQUEST.value());
   }
 
   @Test
@@ -293,29 +301,35 @@ public class RegistrationControllerTest extends BaseIntegrationTest {
             .withBody(bungieErrorJson)));
 
     // when: the discord callback request is received
-    var discordCallbackResponse = mockMvc.perform(discordRequest);
+    ResponseSpec discordCallbackResponse = webTestClient.get()
+        .uri("/discord/callback?code=" + authorizationCode)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange();
 
     // then: the response is a redirect URI to Bungie OAuth2 Authorization Flow
-    discordCallbackResponse.andDo(print())
-        .andExpect(status().is3xxRedirection())
-        .andExpect(header().exists(HttpHeaders.LOCATION))
-        .andExpect(header().string(HttpHeaders.LOCATION,
+    discordCallbackResponse.expectStatus().is3xxRedirection()
+        .expectHeader().exists(HttpHeaders.LOCATION)
+        .expectHeader().valueEquals(
+            HttpHeaders.LOCATION,
             OAuth2Util.bungieAuthorizationUrl(bungieConfiguration.getAuthorizationUrl(),
-                bungieConfiguration.getClientId())));
+                bungieConfiguration.getClientId()));
 
-    var sessionCookie = discordCallbackResponse.andReturn().getResponse().getCookie(SESSION_COOKIE);
+    ResponseCookie sessionCookie = discordCallbackResponse.returnResult(ResponseEntity.class)
+        .getResponseCookies()
+        .getFirst(SESSION_COOKIE);
 
     // when: the bungie callback request is received from a user login
-    var bungieRequest = MockMvcRequestBuilders.get("/bungie/callback")
-        .queryParam(OAuth2Params.CODE, authorizationCode)
-        .cookie(sessionCookie)
-        .accept(MediaType.APPLICATION_JSON);
-    var bungieCallbackResponse = mockMvc.perform(bungieRequest);
+    ResponseSpec bungieCallbackResponse = webTestClient.get()
+        .uri("/bungie/callback?code=" + authorizationCode)
+        .cookie(SESSION_COOKIE, Objects.requireNonNull(sessionCookie).getValue())
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange();
 
     // then: bungie call back response returns status a 500 INTERNAL_SERVER error
-    bungieCallbackResponse.andDo(print())
-        .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.detail").value(bungieErrorJson))
-        .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.value()));
+    bungieCallbackResponse
+        .expectStatus().is5xxServerError()
+        .expectBody()
+        .jsonPath("$.detail").isEqualTo(bungieErrorJson)
+        .jsonPath("$.status").isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
   }
 }

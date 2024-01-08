@@ -13,7 +13,7 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "discord.api")
-public class DiscordConfiguration {
+public class DiscordConfiguration implements OAuth2Configuration {
 
   /**
    * Base Url for Discord API calls

@@ -13,7 +13,7 @@ public class GenericResponse<T> {
 
   /**
    * Most of the responses from Bungie.net have a Json element named 'Response' with arbitrary info
-   * depending on the endpoint. This field is just a wrapper for it.
+   * depending on the endpoint. This field is just a generic-wrapper for it.
    */
   @JsonAlias("Response")
   @Nullable

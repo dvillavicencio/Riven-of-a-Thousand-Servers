@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.context;
+package com.danielvm.destiny2bot.dto.destiny.characters;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,10 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserIdentity {
+public class CharactersResponse {
 
-  /**
-   * The user DiscordId
-   */
-  private String discordId;
+  private Characters characters;
 }

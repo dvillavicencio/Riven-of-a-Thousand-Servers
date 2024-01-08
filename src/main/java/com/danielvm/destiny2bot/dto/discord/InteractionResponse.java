@@ -1,10 +1,10 @@
 package com.danielvm.destiny2bot.dto.discord;
 
-import com.danielvm.destiny2bot.enums.InteractionResponseEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import reactor.core.publisher.Mono;
 
 @Data
 @Builder
@@ -15,7 +15,7 @@ public class InteractionResponse {
   /**
    * The type of the InteractionResponse
    * <br>
-   * {@see {@link InteractionResponseEnum }}
+   * {@see {@link com.danielvm.destiny2bot.enums.InteractionResponse }}
    */
   private Integer type;
   /**
@@ -28,7 +28,7 @@ public class InteractionResponse {
    *
    * @return InteractionResponse with null data and type 1
    */
-  public static InteractionResponse PING() {
-    return new InteractionResponse(1, null);
+  public static Mono<InteractionResponse> PING() {
+    return Mono.just(new InteractionResponse(1, null));
   }
 }

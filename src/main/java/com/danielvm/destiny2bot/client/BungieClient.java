@@ -1,9 +1,11 @@
 package com.danielvm.destiny2bot.client;
 
 import com.danielvm.destiny2bot.dto.destiny.GenericResponse;
+import com.danielvm.destiny2bot.dto.destiny.characters.CharactersResponse;
 import com.danielvm.destiny2bot.dto.destiny.manifest.ResponseFields;
 import com.danielvm.destiny2bot.dto.destiny.membership.MembershipResponse;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
+import com.danielvm.destiny2bot.enums.ManifestEntity;
 import java.util.Map;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -28,10 +30,19 @@ public interface BungieClient {
       @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken);
 
   /**
+   * Gets the membership info for the current user in a reactive way
+   *
+   * @param bearerToken The user's bearer token
+   * @return {@link MembershipResponse}
+   */
+  @GetExchange("/User/GetMembershipsForCurrentUser/")
+  Mono<MembershipResponse> getMembershipInfoForCurrentUser(
+      @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken);
+
+  /**
    * Ges a manifest entity from the Manifest API
    *
-   * @param entityType     The entity type (see
-   *                       {@link com.danielvm.destiny2bot.enums.EntityTypeEnum})
+   * @param entityType     The entity type (see {@link ManifestEntity})
    * @param hashIdentifier The entity hash identifier
    * @return {@link GenericResponse} of {@link ResponseFields}
    */
@@ -43,8 +54,7 @@ public interface BungieClient {
   /**
    * Ges a manifest entity from the Manifest API asynchronously
    *
-   * @param entityType     The entity type (see
-   *                       {@link com.danielvm.destiny2bot.enums.EntityTypeEnum})
+   * @param entityType     The entity type (see {@link ManifestEntity})
    * @param hashIdentifier The entity hash identifier
    * @return {@link Mono} of {@link ResponseFields}
    */
@@ -60,5 +70,18 @@ public interface BungieClient {
    */
   @GetExchange("/Destiny2/Milestones/")
   Mono<GenericResponse<Map<String, MilestoneEntry>>> getPublicMilestonesRx();
+
+  /**
+   * Get a user characters
+   *
+   * @param membershipType      the membership type of the user
+   * @param destinyMembershipId the destiny membership id of the user
+   * @return {@link Mono} containing {@link CharactersResponse}
+   */
+  @GetExchange("/Destiny2/{membershipType}/Profile/{destinyMembershipId}/?components=200")
+  Mono<GenericResponse<CharactersResponse>> getUserCharacters(
+      @PathVariable Integer membershipType,
+      @PathVariable String destinyMembershipId
+  );
 
 }

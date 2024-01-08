@@ -1,10 +1,10 @@
 package com.danielvm.destiny2bot.factory;
 
-import static com.danielvm.destiny2bot.enums.InteractionResponseEnum.CHANNEL_MESSAGE_WITH_SOURCE;
+import static com.danielvm.destiny2bot.enums.InteractionResponse.CHANNEL_MESSAGE_WITH_SOURCE;
 
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
-import com.danielvm.destiny2bot.enums.ActivityModeEnum;
+import com.danielvm.destiny2bot.enums.ActivityMode;
 import com.danielvm.destiny2bot.service.WeeklyActivitiesService;
 import com.danielvm.destiny2bot.util.MessageUtil;
 import org.springframework.stereotype.Component;
@@ -25,7 +25,7 @@ public class WeeklyDungeonMessageCreator implements MessageResponseFactory {
 
   @Override
   public Mono<InteractionResponse> createResponse() {
-    return weeklyActivitiesService.getWeeklyActivity(ActivityModeEnum.DUNGEON)
+    return weeklyActivitiesService.getWeeklyActivity(ActivityMode.DUNGEON)
         .map(wd -> {
           var endDay = MessageUtil.formatDate(wd.getEndDate().toLocalDate());
           return InteractionResponse.builder()

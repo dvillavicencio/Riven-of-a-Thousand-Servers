@@ -4,8 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
-import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
-import com.danielvm.destiny2bot.enums.InteractionResponseEnum;
+import com.danielvm.destiny2bot.enums.InteractionResponse;
 import com.danielvm.destiny2bot.util.OAuth2Util;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -42,14 +41,14 @@ public class AuthorizeMessageCreatorTest {
     String scopeString = String.join(",", scopes);
 
     // when: create message is called
-    FirstStep<InteractionResponse> response = StepVerifier.create(sut.createResponse());
+    FirstStep<com.danielvm.destiny2bot.dto.discord.InteractionResponse> response = StepVerifier.create(sut.createResponse());
 
     // then: the message created is correct
     response
         .assertNext(interactionResponse -> {
           var embedded = interactionResponse.getData().getEmbeds().get(0);
           assertThat(interactionResponse.getType()).isEqualTo(
-              InteractionResponseEnum.CHANNEL_MESSAGE_WITH_SOURCE.getType());
+              InteractionResponse.CHANNEL_MESSAGE_WITH_SOURCE.getType());
           assertThat(embedded.getDescription()).isEqualTo(
               AuthorizeMessageCreator.MESSAGE_DESCRIPTION);
           assertThat(embedded.getTitle()).isEqualTo(AuthorizeMessageCreator.MESSAGE_TITLE);

@@ -1,8 +1,8 @@
 package com.danielvm.destiny2bot.service;
 
-import static com.danielvm.destiny2bot.enums.EntityTypeEnum.ACTIVITY_DEFINITION;
-import static com.danielvm.destiny2bot.enums.EntityTypeEnum.ACTIVITY_TYPE_DEFINITION;
-import static com.danielvm.destiny2bot.enums.EntityTypeEnum.MILESTONE_DEFINITION;
+import static com.danielvm.destiny2bot.enums.ManifestEntity.ACTIVITY_DEFINITION;
+import static com.danielvm.destiny2bot.enums.ManifestEntity.ACTIVITY_TYPE_DEFINITION;
+import static com.danielvm.destiny2bot.enums.ManifestEntity.MILESTONE_DEFINITION;
 
 import com.danielvm.destiny2bot.client.BungieClient;
 import com.danielvm.destiny2bot.client.BungieClientWrapper;
@@ -11,7 +11,7 @@ import com.danielvm.destiny2bot.dto.WeeklyActivity;
 import com.danielvm.destiny2bot.dto.destiny.GenericResponse;
 import com.danielvm.destiny2bot.dto.destiny.milestone.ActivitiesDto;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
-import com.danielvm.destiny2bot.enums.ActivityModeEnum;
+import com.danielvm.destiny2bot.enums.ActivityMode;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import java.util.List;
 import java.util.Map;
@@ -39,10 +39,10 @@ public class WeeklyActivitiesService {
   /**
    * Fetches a weekly activity based on the activity mode
    *
-   * @param activityMode The type of the weekly activity (see {@link ActivityModeEnum})
+   * @param activityMode The type of the weekly activity (see {@link ActivityMode})
    * @return {@link MilestoneResponse}
    */
-  public Mono<WeeklyActivity> getWeeklyActivity(ActivityModeEnum activityMode) {
+  public Mono<WeeklyActivity> getWeeklyActivity(ActivityMode activityMode) {
     return bungieClient.getPublicMilestonesRx()
         .map(GenericResponse::getResponse)
         .flatMapIterable(Map::values)
@@ -68,7 +68,7 @@ public class WeeklyActivitiesService {
                 .build());
   }
 
-  private Mono<Boolean> activityModeMatches(MilestoneEntry entry, ActivityModeEnum activityMode) {
+  private Mono<Boolean> activityModeMatches(MilestoneEntry entry, ActivityMode activityMode) {
     if (CollectionUtils.isEmpty(entry.getActivities())) {
       return Mono.just(false);
     }

@@ -6,7 +6,6 @@ This repository has all the source code that makes Riven of a Thousand Severs wo
 ## Stack
   - [Spring Boot](https://spring.io/projects/spring-boot) - Official documentation for Spring Boot
   - [Spring Webflux](https://spring.io/reactive) - Official documentation for Spring Reactive framework, for Project Reactor see [here](https://projectreactor.io/)
-  - [MongoDB](https://www.mongodb.com/) - Official documentation for MongoDB
   - [Redis](https://redis.io/) - Official documentation for Redis
   - [Docker](https://www.docker.com/) - Official documentation for Docker & Docker Compose
 ## Testing

@@ -2,7 +2,7 @@ package com.danielvm.destiny2bot.enums;
 
 import lombok.Getter;
 
-public enum EntityTypeEnum {
+public enum ManifestEntity {
 
   BUCKET_DEFINITION("DestinyInventoryItemDefinition"),
   STAT_DEFINITION("DestinyStatDefinition"),
@@ -15,7 +15,7 @@ public enum EntityTypeEnum {
   @Getter
   private final String id;
 
-  EntityTypeEnum(String id) {
+  ManifestEntity(String id) {
     this.id = id;
   }
 }

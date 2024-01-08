@@ -11,4 +11,8 @@ public class InternalServerException extends BaseException {
   public InternalServerException(String message, HttpStatus status) {
     super(message, status);
   }
+
+  public InternalServerException(String message, HttpStatus status, Throwable throwable) {
+    super(message, status, throwable);
+  }
 }

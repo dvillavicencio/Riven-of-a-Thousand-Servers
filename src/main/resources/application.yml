@@ -1,7 +1,4 @@
 spring:
-  threads:
-    virtual:
-      enabled: true
   data:
     redis:
       port: 6379

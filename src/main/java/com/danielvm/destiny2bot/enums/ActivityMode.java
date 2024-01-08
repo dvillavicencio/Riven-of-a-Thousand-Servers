@@ -2,7 +2,7 @@ package com.danielvm.destiny2bot.enums;
 
 import lombok.Getter;
 
-public enum ActivityModeEnum {
+public enum ActivityMode {
 
   STORY("story"),
   STRIKE("strike"),
@@ -12,7 +12,7 @@ public enum ActivityModeEnum {
   @Getter
   private final String label;
 
-  ActivityModeEnum(String label) {
+  ActivityMode(String label) {
     this.label = label;
   }
 }

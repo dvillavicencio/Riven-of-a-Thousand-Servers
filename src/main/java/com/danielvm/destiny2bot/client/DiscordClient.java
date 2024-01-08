@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.service.annotation.GetExchange;
+import reactor.core.publisher.Mono;
 
 public interface DiscordClient {
 
@@ -15,6 +16,6 @@ public interface DiscordClient {
    * @return {@link DiscordUserResponse}
    */
   @GetExchange("/users/@me")
-  ResponseEntity<DiscordUserResponse> getUser(
+  Mono<DiscordUserResponse> getUser(
       @RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken);
 }

@@ -10,8 +10,8 @@ import com.danielvm.destiny2bot.dto.destiny.manifest.DisplayProperties;
 import com.danielvm.destiny2bot.dto.destiny.manifest.ResponseFields;
 import com.danielvm.destiny2bot.dto.destiny.milestone.ActivitiesDto;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
-import com.danielvm.destiny2bot.enums.ActivityModeEnum;
-import com.danielvm.destiny2bot.enums.EntityTypeEnum;
+import com.danielvm.destiny2bot.enums.ActivityMode;
+import com.danielvm.destiny2bot.enums.ManifestEntity;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import java.time.ZonedDateTime;
 import java.util.Collections;
@@ -40,7 +40,7 @@ public class WeeklyActivitiesServiceTest {
   @DisplayName("Retrieve weekly raid works successfully")
   public void retrieveWeeklyRaidWorksSuccessfully() {
     // given: an activity mode
-    ActivityModeEnum activity = ActivityModeEnum.RAID;
+    ActivityMode activity = ActivityMode.RAID;
 
     var startTime = ZonedDateTime.now();
     var endTime = ZonedDateTime.now().plusDays(2L);
@@ -67,7 +67,7 @@ public class WeeklyActivitiesServiceTest {
     var raidActivityEntity = new GenericResponse<>(activityWithType);
 
     when(
-        bungieClientWrapper.getManifestEntityRx(EntityTypeEnum.ACTIVITY_DEFINITION, "2823159265"))
+        bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_DEFINITION, "2823159265"))
         .thenReturn(Mono.just(raidActivityEntity));
 
     var raidResponseFields = new ResponseFields();
@@ -75,7 +75,7 @@ public class WeeklyActivitiesServiceTest {
         new DisplayProperties("someDescription", "Raid", null, null, false));
     var activityTypeEntity = new GenericResponse<>(raidResponseFields);
 
-    when(bungieClientWrapper.getManifestEntityRx(EntityTypeEnum.ACTIVITY_TYPE_DEFINITION,
+    when(bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_TYPE_DEFINITION,
         "608898761"))
         .thenReturn(Mono.just(activityTypeEntity));
 
@@ -86,7 +86,7 @@ public class WeeklyActivitiesServiceTest {
     var milestoneEntity = new GenericResponse<>(milestoneResponseFields);
 
     when(
-        bungieClientWrapper.getManifestEntityRx(EntityTypeEnum.MILESTONE_DEFINITION, "3618845105"))
+        bungieClientWrapper.getManifestEntityRx(ManifestEntity.MILESTONE_DEFINITION, "3618845105"))
         .thenReturn(Mono.just(milestoneEntity));
 
     WeeklyActivity expectedResponse = new WeeklyActivity("The Last Wish",
@@ -105,7 +105,7 @@ public class WeeklyActivitiesServiceTest {
   @DisplayName("Retrieve weekly dungeon works successfully")
   public void retrieveWeeklyDungeonIsSuccessful() {
     // given: an activity mode
-    ActivityModeEnum activity = ActivityModeEnum.DUNGEON;
+    ActivityMode activity = ActivityMode.DUNGEON;
 
     var startTime = ZonedDateTime.now();
     var endTime = ZonedDateTime.now().plusDays(2L);
@@ -131,7 +131,7 @@ public class WeeklyActivitiesServiceTest {
     activityWithType.setActivityTypeHash("608898761");
     var raidActivityEntity = new GenericResponse<>(activityWithType);
 
-    when(bungieClientWrapper.getManifestEntityRx(EntityTypeEnum.ACTIVITY_DEFINITION, "2823159265"))
+    when(bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_DEFINITION, "2823159265"))
         .thenReturn(Mono.just(raidActivityEntity));
 
     var dungeonResponseFields = new ResponseFields();
@@ -139,7 +139,7 @@ public class WeeklyActivitiesServiceTest {
         new DisplayProperties("someDescription", "Dungeon", null, null, false));
     var activityTypeEntity = new GenericResponse<>(dungeonResponseFields);
 
-    when(bungieClientWrapper.getManifestEntityRx(EntityTypeEnum.ACTIVITY_TYPE_DEFINITION,
+    when(bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_TYPE_DEFINITION,
         "608898761"))
         .thenReturn(Mono.just(activityTypeEntity));
 
@@ -149,7 +149,7 @@ public class WeeklyActivitiesServiceTest {
     milestoneResponseFields.setDisplayProperties(dualityDisplayProperties);
     var milestoneEntity = new GenericResponse<>(milestoneResponseFields);
 
-    when(bungieClientWrapper.getManifestEntityRx(EntityTypeEnum.MILESTONE_DEFINITION, "3618845105"))
+    when(bungieClientWrapper.getManifestEntityRx(ManifestEntity.MILESTONE_DEFINITION, "3618845105"))
         .thenReturn(Mono.just(milestoneEntity));
 
     WeeklyActivity expectedResponse = new WeeklyActivity(dualityDisplayProperties.getName(),
@@ -168,7 +168,7 @@ public class WeeklyActivitiesServiceTest {
   @DisplayName("Get weekly activity should throw an error if the criteria is not met")
   public void getWeeklyActivityError() {
     // given: an activity mode
-    ActivityModeEnum activity = ActivityModeEnum.DUNGEON;
+    ActivityMode activity = ActivityMode.DUNGEON;
 
     var startTime = ZonedDateTime.now();
     var endTime = ZonedDateTime.now().plusDays(2L);

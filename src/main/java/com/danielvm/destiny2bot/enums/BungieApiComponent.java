@@ -2,7 +2,7 @@ package com.danielvm.destiny2bot.enums;
 
 import lombok.Getter;
 
-public enum ComponentEnum {
+public enum BungieApiComponent {
 
   PROFILES(100),
   VENDOR_RECEIPTS(101),
@@ -16,7 +16,7 @@ public enum ComponentEnum {
   @Getter
   private final Integer code;
 
-  ComponentEnum(Integer code) {
+  BungieApiComponent(Integer code) {
     this.code = code;
   }
 }
