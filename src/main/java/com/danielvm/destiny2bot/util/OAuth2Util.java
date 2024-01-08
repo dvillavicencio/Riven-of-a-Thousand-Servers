@@ -67,8 +67,8 @@ public class OAuth2Util {
   /**
    * Return the qualified url with all parameters
    *
-   * @param bungieConfiguration The config class containing all necessary information to build the
-   *                            authorization URI
+   * @param authUrl  The auth URL parameter
+   * @param clientId The clientId for the OAuth2 application
    * @return The authorization url with all required parameters
    */
   public static String bungieAuthorizationUrl(String authUrl, String clientId) {

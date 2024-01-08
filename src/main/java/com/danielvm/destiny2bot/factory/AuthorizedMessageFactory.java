@@ -1,5 +1,6 @@
 package com.danielvm.destiny2bot.factory;
 
+import com.danielvm.destiny2bot.annotation.RefreshToken;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import reactor.core.publisher.Mono;
 

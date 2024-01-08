@@ -37,7 +37,8 @@ public class DestinyCharacterService {
    */
   public Flux<DestinyCharacter> getCharactersForUser(String userId) {
     return Mono.just(userId)
-        .filterWhen(userDetailsReactiveDao::existsByDiscordId) // TODO: Get rid of this and check for authorization more seamlessly
+        .filterWhen(
+            userDetailsReactiveDao::existsByDiscordId) // TODO: Get rid of this and check for authorization more seamlessly
         .flatMap(userDetailsReactiveDao::getByDiscordId)
         .map(userDetails -> OAuth2Util.formatBearerToken(userDetails.getAccessToken()))
         .flatMap(bungieMembershipService::getUserMembershipInformation)
@@ -50,7 +51,8 @@ public class DestinyCharacterService {
             characters.getResponse().getCharacters().getData().entrySet())
         .map(entry -> {
           String characterId = entry.getKey();
-          String characterClass = DestinyClass.findByCode(entry.getValue().getClassType()).getName();
+          String characterClass = DestinyClass.findByCode(entry.getValue().getClassType())
+              .getName();
           String characterRace = DestinyRace.findByCode(entry.getValue().getRaceType()).getName();
           Integer lightLevel = entry.getValue().getLight();
 

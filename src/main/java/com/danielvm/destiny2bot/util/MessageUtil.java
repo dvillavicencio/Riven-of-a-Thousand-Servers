@@ -1,5 +1,9 @@
 package com.danielvm.destiny2bot.util;
 
+import static com.danielvm.destiny2bot.enums.InteractionResponse.CHANNEL_MESSAGE_WITH_SOURCE;
+
+import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
+import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -55,4 +59,20 @@ public class MessageUtil {
     };
   }
 
+  /**
+   * Construct a default error message for use of commands that require authorization
+   *
+   * @return {@link com.danielvm.destiny2bot.dto.discord.InteractionResponse}
+   */
+  public static InteractionResponse unauthorizedUserMessage() {
+    return InteractionResponse.builder()
+        .type(CHANNEL_MESSAGE_WITH_SOURCE.getType())
+        .data(InteractionResponseData.builder()
+            .content("""
+                In order to use this wish you first need to authorize Riven to do so.
+                Please refer to `/authorize` command.
+                """)
+            .build())
+        .build();
+  }
 }
