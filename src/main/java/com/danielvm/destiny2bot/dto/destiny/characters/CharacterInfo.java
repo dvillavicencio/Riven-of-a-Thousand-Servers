@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserCharacter {
+public class CharacterInfo {
 
   private String membershipId;
   private Integer membershipType;

@@ -16,8 +16,8 @@ public class BungieMembershipService {
 
   private final BungieClient bungieClient;
 
-  public BungieMembershipService(BungieClient bungieClient) {
-    this.bungieClient = bungieClient;
+  public BungieMembershipService(BungieClient reactiveBungieClient) {
+    this.bungieClient = reactiveBungieClient;
   }
 
   /**

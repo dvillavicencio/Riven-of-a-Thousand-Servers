@@ -3,19 +3,19 @@ spring:
     redis:
       port: 6379
       host: localhost
-  r2dbc:
-    url: r2dbc:postgresql://localhost:5432/postgres
+  datasource:
     username: postgres
     password: mysecretpassword
-  h2:
-    console:
-      enabled: true
+    url: jdbc:postgresql://localhost:5432/postgres
   flyway:
     enabled: true
     url: jdbc:postgresql://localhost:5432/postgres
     user: postgres
     password: mysecretpassword
     locations: classpath:db/migration
+  jpa:
+    hibernate:
+      ddl-auto: none
 
 bungie:
   api:

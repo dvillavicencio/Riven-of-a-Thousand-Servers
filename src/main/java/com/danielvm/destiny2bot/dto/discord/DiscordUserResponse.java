@@ -7,7 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class DiscordUserResponse {
 
-  private String id;
+  private Long id;
 
   private String username;
 

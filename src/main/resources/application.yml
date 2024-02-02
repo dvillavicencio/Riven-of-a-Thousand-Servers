@@ -9,6 +9,9 @@ spring:
     url: # TODO: Define production parameters
     username: # TODO: Define production parameters
     password: #TODO: Define production parameters
+  threads:
+    virtual:
+      enabled: true
 
 server:
   port: 443
@@ -23,6 +26,7 @@ bungie:
     clientSecret: ${BUNGIE_CLIENT_SECRET}
     clientId: ${BUNGIE_CLIENT_ID}
     baseUrl: https://www.bungie.net/Platform
+    statsBaseUrl: https://stats.bungie.net/Platform
     authorizationUrl: https://www.bungie.net/en/oauth/authorize
     tokenUrl: https://www.bungie.net/platform/app/oauth/token/
     callbackUrl: ${application.callback.url}/bungie/callback

@@ -6,6 +6,8 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
@@ -60,13 +62,24 @@ public class DiscordConfiguration implements OAuth2Configuration {
    */
   private List<String> scopes;
 
-  @Bean
-  public DiscordClient discordClient(WebClient.Builder defaultBuilder) {
+  @Bean(name = "reactiveDiscordClient")
+  public DiscordClient reactiveDiscordClient(WebClient.Builder defaultBuilder) {
     var webClient = defaultBuilder
         .baseUrl(this.baseUrl)
         .build();
     return HttpServiceProxyFactory.builder()
         .exchangeAdapter(WebClientAdapter.create(webClient))
+        .build()
+        .createClient(DiscordClient.class);
+  }
+
+  @Bean(name = "imperativeDiscordClient")
+  public DiscordClient imperativeDiscordClient(RestClient.Builder defaultBuilder) {
+    var restClient = defaultBuilder
+        .baseUrl(this.baseUrl)
+        .build();
+    return HttpServiceProxyFactory.builder()
+        .exchangeAdapter(RestClientAdapter.create(restClient))
         .build()
         .createClient(DiscordClient.class);
   }

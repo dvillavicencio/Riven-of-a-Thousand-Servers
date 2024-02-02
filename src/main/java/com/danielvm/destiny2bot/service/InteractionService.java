@@ -32,7 +32,8 @@ public class InteractionService {
    * @return {@link InteractionResponse}
    */
   public Mono<InteractionResponse> handleInteraction(Interaction interaction) {
-    InteractionType interactionType = InteractionType.findByValue(interaction.getType());
+    log.info("Interaction received: {}", interaction);
+    InteractionType interactionType  = InteractionType.findByValue(interaction.getType());
     return switch (interactionType) {
       case MODAL_SUBMIT, MESSAGE_COMPONENT -> Mono.just(new InteractionResponse());
       case APPLICATION_COMMAND_AUTOCOMPLETE -> {

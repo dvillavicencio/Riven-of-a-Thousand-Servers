@@ -101,7 +101,7 @@ public class UserRegistrationServiceTest {
     when(responseSpec.bodyToMono(TokenResponse.class))
         .thenReturn(Mono.just(GENERIC_TOKEN_RESPONSE));
 
-    when(discordClientMock.getUser(
+    when(discordClientMock.getUserRx(
         OAuth2Util.formatBearerToken(GENERIC_TOKEN_RESPONSE.getAccessToken())))
         .thenReturn(Mono.just(discordUser));
 
@@ -159,7 +159,7 @@ public class UserRegistrationServiceTest {
     when(responseSpec.bodyToMono(TokenResponse.class))
         .thenReturn(Mono.just(GENERIC_TOKEN_RESPONSE));
 
-    when(discordClientMock.getUser(
+    when(discordClientMock.getUserRx(
         OAuth2Util.formatBearerToken(GENERIC_TOKEN_RESPONSE.getAccessToken())))
         .thenReturn(Mono.just(userArgument));
 
@@ -182,7 +182,7 @@ public class UserRegistrationServiceTest {
     when(responseSpec.bodyToMono(TokenResponse.class))
         .thenReturn(Mono.just(GENERIC_TOKEN_RESPONSE));
 
-    when(discordClientMock.getUser(
+    when(discordClientMock.getUserRx(
         OAuth2Util.formatBearerToken(GENERIC_TOKEN_RESPONSE.getAccessToken())))
         .thenReturn(Mono.empty());
 
@@ -222,7 +222,7 @@ public class UserRegistrationServiceTest {
         .thenReturn(Mono.just(Boolean.TRUE));
 
     // when: linkDiscordUserToBungieAccount is called
-    StepVerifier.create(sut.linkDiscordUserToBungieAccount(authorizationCode, httpSession))
+    StepVerifier.create(sut.saveUserDetails(authorizationCode, httpSession))
         .assertNext(next -> assertThat(httpSession.isInvalid()).isTrue());
   }
 
@@ -247,7 +247,7 @@ public class UserRegistrationServiceTest {
         .thenReturn(Mono.just(bungieToken));
 
     // when: linkDiscordUserToBungieAccount is called, an exception is thrown with an error message
-    StepVerifier.create(sut.linkDiscordUserToBungieAccount(authorizationCode, httpSession))
+    StepVerifier.create(sut.saveUserDetails(authorizationCode, httpSession))
         .expectErrorMessage(
             "The access token, the refresh token or the expiration are null for user")
         .verify();

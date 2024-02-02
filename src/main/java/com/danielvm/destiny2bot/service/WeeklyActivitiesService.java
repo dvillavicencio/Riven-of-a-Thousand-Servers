@@ -5,10 +5,10 @@ import static com.danielvm.destiny2bot.enums.ManifestEntity.ACTIVITY_TYPE_DEFINI
 import static com.danielvm.destiny2bot.enums.ManifestEntity.MILESTONE_DEFINITION;
 
 import com.danielvm.destiny2bot.client.BungieClient;
-import com.danielvm.destiny2bot.client.BungieClientWrapper;
+import com.danielvm.destiny2bot.client.BungieManifestClient;
 import com.danielvm.destiny2bot.dto.MilestoneResponse;
 import com.danielvm.destiny2bot.dto.WeeklyActivity;
-import com.danielvm.destiny2bot.dto.destiny.GenericResponse;
+import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
 import com.danielvm.destiny2bot.dto.destiny.milestone.ActivitiesDto;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
 import com.danielvm.destiny2bot.enums.ActivityMode;
@@ -27,13 +27,13 @@ import reactor.core.publisher.Mono;
 public class WeeklyActivitiesService {
 
   private final BungieClient bungieClient;
-  private final BungieClientWrapper bungieClientWrapper;
+  private final BungieManifestClient bungieManifestClient;
 
   public WeeklyActivitiesService(
-      BungieClient bungieClient,
-      BungieClientWrapper bungieClientWrapper) {
-    this.bungieClient = bungieClient;
-    this.bungieClientWrapper = bungieClientWrapper;
+      BungieClient reactiveBungieClient,
+      BungieManifestClient bungieManifestClient) {
+    this.bungieClient = reactiveBungieClient;
+    this.bungieManifestClient = bungieManifestClient;
   }
 
   /**
@@ -44,7 +44,7 @@ public class WeeklyActivitiesService {
    */
   public Mono<WeeklyActivity> getWeeklyActivity(ActivityMode activityMode) {
     return bungieClient.getPublicMilestonesRx()
-        .map(GenericResponse::getResponse)
+        .map(BungieResponse::getResponse)
         .flatMapIterable(Map::values)
         .filter(this::hasWeeklyObjectives)
         .filterWhen(milestoneEntry -> activityModeMatches(milestoneEntry, activityMode))
@@ -56,7 +56,7 @@ public class WeeklyActivitiesService {
   }
 
   private Mono<WeeklyActivity> createWeeklyActivity(MilestoneEntry milestoneEntry) {
-    return bungieClientWrapper.getManifestEntityRx(MILESTONE_DEFINITION,
+    return bungieManifestClient.getManifestEntityRx(MILESTONE_DEFINITION,
             milestoneEntry.getMilestoneHash())
         .map(milestoneEntity -> milestoneEntity.getResponse().getDisplayProperties())
         .map(displayProperties ->
@@ -73,11 +73,11 @@ public class WeeklyActivitiesService {
       return Mono.just(false);
     }
     return Flux.fromIterable(entry.getActivities())
-        .flatMap(activity -> bungieClientWrapper.getManifestEntityRx(
+        .flatMap(activity -> bungieManifestClient.getManifestEntityRx(
             ACTIVITY_DEFINITION, activity.getActivityHash()))
         .filter(activityDefinition -> Objects.nonNull(
             activityDefinition.getResponse().getActivityTypeHash()))
-        .flatMap(activityDefinition -> bungieClientWrapper.getManifestEntityRx(
+        .flatMap(activityDefinition -> bungieManifestClient.getManifestEntityRx(
             ACTIVITY_TYPE_DEFINITION, activityDefinition.getResponse().getActivityTypeHash()))
         .filter(activityTypeDefinition -> Objects.nonNull(
             activityTypeDefinition.getResponse()) && Objects.nonNull(

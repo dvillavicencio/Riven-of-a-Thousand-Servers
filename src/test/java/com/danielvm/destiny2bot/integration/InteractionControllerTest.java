@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
 import com.danielvm.destiny2bot.dao.UserDetailsReactiveDao;
-import com.danielvm.destiny2bot.dto.destiny.GenericResponse;
+import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
 import com.danielvm.destiny2bot.dto.discord.Choice;
 import com.danielvm.destiny2bot.dto.discord.DiscordUser;
@@ -71,7 +71,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
   @BeforeAll
   public static void before() throws IOException {
     File milestoneFile = new File("src/test/resources/__files/bungie/milestone-response.json");
-    TypeReference<GenericResponse<Map<String, MilestoneEntry>>> typeReference = new TypeReference<>() {
+    TypeReference<BungieResponse<Map<String, MilestoneEntry>>> typeReference = new TypeReference<>() {
     };
     var milestoneResponse = OBJECT_MAPPER.readValue(milestoneFile, typeReference);
 
@@ -81,7 +81,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
     OBJECT_MAPPER.writeValue(milestoneFile, milestoneResponse);
   }
 
-  private static void replaceDates(GenericResponse<Map<String, MilestoneEntry>> response,
+  private static void replaceDates(BungieResponse<Map<String, MilestoneEntry>> response,
       String hash) {
     response.getResponse().entrySet().stream()
         .filter(entry -> Objects.equals(entry.getKey(), hash))

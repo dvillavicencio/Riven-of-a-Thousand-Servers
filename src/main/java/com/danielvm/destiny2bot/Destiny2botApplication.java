@@ -18,6 +18,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -78,6 +79,22 @@ public class Destiny2botApplication {
                         HttpStatus.BAD_REQUEST)
                 ))
         );
+  }
+
+  /**
+   * Prepares a RestClient.Builder bean that handles 5xx errors accordingly
+   *
+   * @return {@link RestClient.Builder}
+   */
+  @Bean
+  public RestClient.Builder restClient() {
+    return RestClient.builder()
+        .defaultStatusHandler(
+            HttpStatusCode::is5xxServerError, (request, response) -> {
+              String bodyMessage = new String(response.getBody().readAllBytes());
+              String message = "Something went wrong with the request: [%s]".formatted(bodyMessage);
+              throw new InternalServerException(message, HttpStatus.INTERNAL_SERVER_ERROR);
+            });
   }
 
   @Bean

@@ -19,6 +19,16 @@ public interface DiscordClient {
    * @return {@link DiscordUserResponse}
    */
   @GetExchange("/users/@me")
-  Mono<DiscordUserResponse> getUser(
+  Mono<DiscordUserResponse> getUserRx(
+      @RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken);
+
+  /**
+   * Gets the current Discord user details
+   *
+   * @param bearerToken The bearer token of the Discord user
+   * @return {@link DiscordUserResponse}
+   */
+  @GetExchange("/users/@me")
+  ResponseEntity<DiscordUserResponse> getUser(
       @RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken);
 }

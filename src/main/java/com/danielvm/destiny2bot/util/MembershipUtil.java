@@ -13,7 +13,7 @@ public class MembershipUtil {
    * @param membership the membership response from Bungie
    * @return the membershipId
    */
-  public static String extractMembershipId(MembershipResponse membership) {
+  public static Long extractMembershipId(MembershipResponse membership) {
     return membership.response().destinyMemberships().get(0).membershipId();
   }
 

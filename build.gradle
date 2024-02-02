@@ -57,7 +57,7 @@ jar {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.session:spring-session-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -68,7 +68,6 @@ dependencies {
     implementation "org.aspectj:aspectjrt:${aspectJRTVersion}"
     implementation "org.flywaydb:flyway-core:${flywayCoreVersion}"
     implementation "org.postgresql:postgresql:${postgresqlVersion}"
-    implementation "org.postgresql:r2dbc-postgresql:${postgresR2dbcVersion}"
     implementation "org.aspectj:aspectjweaver:${aspectJWeaverVersion}"
     implementation "commons-codec:commons-codec:${commonsCodecVersion}"
     implementation "software.pando.crypto:salty-coffee:${pandoCryptoVersion}"

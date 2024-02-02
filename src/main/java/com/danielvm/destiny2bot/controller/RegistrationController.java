@@ -1,24 +1,30 @@
 package com.danielvm.destiny2bot.controller;
 
+import com.danielvm.destiny2bot.config.BungieConfiguration;
 import com.danielvm.destiny2bot.service.UserRegistrationService;
 import com.danielvm.destiny2bot.util.OAuth2Params;
+import com.danielvm.destiny2bot.util.OAuth2Util;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 
 @Slf4j
 @RestController
 public class RegistrationController {
 
   private final UserRegistrationService userRegistrationService;
+  private final BungieConfiguration bungieConfiguration;
 
   public RegistrationController(
-      UserRegistrationService userRegistrationService) {
+      UserRegistrationService userRegistrationService,
+      BungieConfiguration bungieConfiguration) {
     this.userRegistrationService = userRegistrationService;
+    this.bungieConfiguration = bungieConfiguration;
   }
 
   /**
@@ -28,11 +34,15 @@ public class RegistrationController {
    * @return Redirect to start Bungie OAuth2
    */
   @GetMapping("/discord/callback")
-  public Mono<ResponseEntity<Object>> handleCallBackFromDiscord(
+  public ResponseEntity<?> handleCallBackFromDiscord(
       @RequestParam(OAuth2Params.CODE) String authorizationCode,
       HttpSession httpSession) {
-    return userRegistrationService
-        .authenticateDiscordUser(authorizationCode, httpSession);
+    userRegistrationService.authenticateDiscordUser(authorizationCode, httpSession);
+    return ResponseEntity.status(HttpStatus.FOUND)
+        .header(HttpHeaders.LOCATION,
+            OAuth2Util.bungieAuthorizationUrl(bungieConfiguration.getAuthorizationUrl(),
+                bungieConfiguration.getClientId()))
+        .build();
   }
 
   /**
@@ -42,11 +52,11 @@ public class RegistrationController {
    * @return Redirect to start Bungie OAuth2
    */
   @GetMapping("/bungie/callback")
-  public Mono<ResponseEntity<Object>> handleCallBackFromBungie(
+  public ResponseEntity<?> handleCallBackFromBungie(
       @RequestParam(OAuth2Params.CODE) String authorizationCode,
       HttpSession httpSession) {
-    return userRegistrationService
-        .linkDiscordUserToBungieAccount(authorizationCode, httpSession);
+    userRegistrationService.saveUserDetails(authorizationCode, httpSession);
+    return ResponseEntity.noContent().build();
   }
 
 }

@@ -5,9 +5,11 @@ import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MES
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
 import com.danielvm.destiny2bot.dto.discord.Component;
 import com.danielvm.destiny2bot.dto.discord.Embedded;
+import com.danielvm.destiny2bot.dto.discord.EmbeddedField;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
+import com.danielvm.destiny2bot.repository.BotUserRepository;
 import com.danielvm.destiny2bot.util.OAuth2Util;
 import java.util.List;
 import reactor.core.publisher.Mono;
@@ -22,10 +24,15 @@ public class AuthorizeMessageCreator implements ApplicationCommandSource {
       However, in order for her to do that you must authorize her to read a sub-set of your Destiny 2 data beforehand.
       """;
   private static final Integer EPHEMERAL_BYTE = 1000000;
-  private final DiscordConfiguration discordConfiguration;
 
-  public AuthorizeMessageCreator(DiscordConfiguration discordConfiguration) {
+  private final DiscordConfiguration discordConfiguration;
+  private final BotUserRepository userRepository;
+
+  public AuthorizeMessageCreator(
+      DiscordConfiguration discordConfiguration,
+      BotUserRepository userRepository) {
     this.discordConfiguration = discordConfiguration;
+    this.userRepository = userRepository;
   }
 
   @Override
@@ -35,36 +42,51 @@ public class AuthorizeMessageCreator implements ApplicationCommandSource {
     String callbackUrl = discordConfiguration.getCallbackUrl();
     String scopes = String.join(",", discordConfiguration.getScopes());
 
+    String authorizationUrl = OAuth2Util.discordAuthorizationUrl(authUrl, clientId,
+        callbackUrl, scopes);
+
     Embedded accountLinkEmbed = Embedded.builder()
         .title(MESSAGE_TITLE)
         .description(MESSAGE_DESCRIPTION)
         .build();
 
-    return Mono.just(InteractionResponse.builder()
-        .type(CHANNEL_MESSAGE_WITH_SOURCE.getType())
-        .data(InteractionResponseData.builder()
-            .embeds(List.of(accountLinkEmbed))
-            .flags(EPHEMERAL_BYTE)
-            .components(
-                List.of(Component.builder()
-                    .type(1)
-                    .components(List.of(
-                        Component.builder() // 'Authorize' link button
-                            .type(2)
-                            .style(5)
-                            .url(OAuth2Util.discordAuthorizationUrl(authUrl, clientId,
-                                callbackUrl, scopes))
-                            .label("Authorize")
-                            .build(),
-                        Component.builder() // 'Why?' button
-                            .customId("why_authorize_button")
-                            .label("Why?")
-                            .type(2)
-                            .style(1)
-                            .build())
-                    )
+    List<Component> buttons = List.of(
+        Component.builder().type(1)
+            .components(List.of(
+                Component.builder() // 'Authorize' link button
+                    .type(2)
+                    .style(5)
+                    .url(authorizationUrl)
+                    .label("Authorize")
+                    .build(),
+                Component.builder() // 'Why?' button
+                    .customId("why_authorize_button")
+                    .label("Why?")
+                    .type(2)
+                    .style(1)
                     .build()))
-            .build())
-        .build());
+            .build());
+
+    return Mono.just(
+            userRepository.existsById(Long.valueOf(interaction.getMember().getUser().getId())))
+        .map(exists -> {
+          if (exists) {
+            return InteractionResponse.builder()
+                .type(CHANNEL_MESSAGE_WITH_SOURCE.getType())
+                .data(InteractionResponseData.builder()
+                    .content("You have already authorized the bot! Don't worry, we gotchu covered")
+                    .flags(EPHEMERAL_BYTE)
+                    .build())
+                .build();
+          }
+          return InteractionResponse.builder()
+              .type(CHANNEL_MESSAGE_WITH_SOURCE.getType())
+              .data(InteractionResponseData.builder()
+                  .embeds(List.of(accountLinkEmbed))
+                  .flags(EPHEMERAL_BYTE)
+                  .components(buttons)
+                  .build())
+              .build();
+        });
   }
 }
