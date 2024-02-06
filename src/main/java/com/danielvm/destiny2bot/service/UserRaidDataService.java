@@ -80,10 +80,6 @@ public class UserRaidDataService {
     BungieResponse<CharactersResponse> characters = bungieClient.getUserCharacters(
         membershipType, membershipId).getBody();
 
-    Assert.notNull(characters,
-        "The request body is null for user [%s]".formatted(botUser.getDiscordUsername()));
-    Assert.notNull(characters.getResponse(),
-        "The character's response for user [%s] is null".formatted(botUser.getDiscordUsername()));
 
     List<UserCharacter> characterList = characters.getResponse().getCharacters().getData()
         .entrySet().stream()
