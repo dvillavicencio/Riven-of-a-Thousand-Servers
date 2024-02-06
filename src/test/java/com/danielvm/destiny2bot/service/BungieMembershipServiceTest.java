@@ -33,7 +33,7 @@ public class BungieMembershipServiceTest {
     // given
     var bearerToken = "SomeBearerToken";
     var membershipResponse = new MembershipResponse(
-        new Memberships(List.of(new DestinyMembershipData(3, "membershipId"))));
+        new Memberships(List.of(new DestinyMembershipData(3, 1L))));
 
     when(bungieClientMock.getMembershipForCurrentUser(bearerToken))
         .thenReturn(ResponseEntity.ok(membershipResponse));
@@ -87,7 +87,7 @@ public class BungieMembershipServiceTest {
     // given
     var bearerToken = "SomeBearerToken";
     var membershipResponse = new MembershipResponse(
-        new Memberships(List.of(new DestinyMembershipData(null, "membershipId"))));
+        new Memberships(List.of(new DestinyMembershipData(null, 1L))));
 
     when(bungieClientMock.getMembershipForCurrentUser(bearerToken))
         .thenReturn(ResponseEntity.ok(membershipResponse));

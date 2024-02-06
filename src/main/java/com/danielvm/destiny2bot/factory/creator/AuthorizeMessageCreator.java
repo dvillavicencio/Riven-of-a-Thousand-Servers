@@ -5,7 +5,6 @@ import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MES
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
 import com.danielvm.destiny2bot.dto.discord.Component;
 import com.danielvm.destiny2bot.dto.discord.Embedded;
-import com.danielvm.destiny2bot.dto.discord.EmbeddedField;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;

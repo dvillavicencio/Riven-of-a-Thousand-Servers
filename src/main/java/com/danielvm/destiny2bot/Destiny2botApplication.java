@@ -87,7 +87,7 @@ public class Destiny2botApplication {
    * @return {@link RestClient.Builder}
    */
   @Bean
-  public RestClient.Builder restClient() {
+  public RestClient.Builder restClientBuilder() {
     return RestClient.builder()
         .defaultStatusHandler(
             HttpStatusCode::is5xxServerError, (request, response) -> {

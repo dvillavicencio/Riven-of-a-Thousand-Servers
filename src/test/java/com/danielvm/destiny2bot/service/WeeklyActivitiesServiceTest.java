@@ -7,7 +7,7 @@ import com.danielvm.destiny2bot.client.BungieManifestClient;
 import com.danielvm.destiny2bot.dto.WeeklyActivity;
 import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
 import com.danielvm.destiny2bot.dto.destiny.manifest.DisplayProperties;
-import com.danielvm.destiny2bot.dto.destiny.manifest.ResponseFields;
+import com.danielvm.destiny2bot.dto.destiny.manifest.ManifestFields;
 import com.danielvm.destiny2bot.dto.destiny.milestone.ActivitiesDto;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
 import com.danielvm.destiny2bot.enums.ActivityMode;
@@ -62,7 +62,7 @@ public class WeeklyActivitiesServiceTest {
     when(bungieClient.getPublicMilestonesRx())
         .thenReturn(Mono.just(milestoneResponse));
 
-    var activityWithType = new ResponseFields();
+    var activityWithType = new ManifestFields();
     activityWithType.setActivityTypeHash("608898761");
     var raidActivityEntity = new BungieResponse<>(activityWithType);
 
@@ -70,7 +70,7 @@ public class WeeklyActivitiesServiceTest {
         bungieManifestClient.getManifestEntityRx(ManifestEntity.ACTIVITY_DEFINITION, "2823159265"))
         .thenReturn(Mono.just(raidActivityEntity));
 
-    var raidResponseFields = new ResponseFields();
+    var raidResponseFields = new ManifestFields();
     raidResponseFields.setDisplayProperties(
         new DisplayProperties("someDescription", "Raid", null, null, false));
     var activityTypeEntity = new BungieResponse<>(raidResponseFields);
@@ -79,7 +79,7 @@ public class WeeklyActivitiesServiceTest {
         "608898761"))
         .thenReturn(Mono.just(activityTypeEntity));
 
-    var milestoneResponseFields = new ResponseFields();
+    var milestoneResponseFields = new ManifestFields();
     var lastWishDisplayProperties = new DisplayProperties("Delve into the Last Wish raid",
         "The Last Wish", null, null, false);
     milestoneResponseFields.setDisplayProperties(lastWishDisplayProperties);
@@ -127,14 +127,14 @@ public class WeeklyActivitiesServiceTest {
     when(bungieClient.getPublicMilestonesRx())
         .thenReturn(Mono.just(milestoneResponse));
 
-    var activityWithType = new ResponseFields();
+    var activityWithType = new ManifestFields();
     activityWithType.setActivityTypeHash("608898761");
     var raidActivityEntity = new BungieResponse<>(activityWithType);
 
     when(bungieManifestClient.getManifestEntityRx(ManifestEntity.ACTIVITY_DEFINITION, "2823159265"))
         .thenReturn(Mono.just(raidActivityEntity));
 
-    var dungeonResponseFields = new ResponseFields();
+    var dungeonResponseFields = new ManifestFields();
     dungeonResponseFields.setDisplayProperties(
         new DisplayProperties("someDescription", "Dungeon", null, null, false));
     var activityTypeEntity = new BungieResponse<>(dungeonResponseFields);
@@ -143,7 +143,7 @@ public class WeeklyActivitiesServiceTest {
         "608898761"))
         .thenReturn(Mono.just(activityTypeEntity));
 
-    var milestoneResponseFields = new ResponseFields();
+    var milestoneResponseFields = new ManifestFields();
     var dualityDisplayProperties = new DisplayProperties("Calus' mind as a dungeon lol",
         "Duality", null, null, false);
     milestoneResponseFields.setDisplayProperties(dualityDisplayProperties);

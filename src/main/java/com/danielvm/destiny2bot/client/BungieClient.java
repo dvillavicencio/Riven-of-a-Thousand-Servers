@@ -4,23 +4,38 @@ import com.danielvm.destiny2bot.dto.destiny.ActivityHistoryResponse;
 import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
 import com.danielvm.destiny2bot.dto.destiny.PostGameCarnageReport;
 import com.danielvm.destiny2bot.dto.destiny.characters.CharactersResponse;
-import com.danielvm.destiny2bot.dto.destiny.manifest.ResponseFields;
+import com.danielvm.destiny2bot.dto.destiny.manifest.ManifestFields;
 import com.danielvm.destiny2bot.dto.destiny.membership.MembershipResponse;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
+import com.danielvm.destiny2bot.dto.oauth2.TokenResponse;
 import com.danielvm.destiny2bot.enums.ManifestEntity;
 import java.util.Map;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.service.annotation.GetExchange;
+import org.springframework.web.service.annotation.PostExchange;
 import reactor.core.publisher.Mono;
 
 /**
  * This client is responsible for making calls to the Bungie API
  */
 public interface BungieClient {
+
+  /**
+   * Retrieves an access token from Bungie's OAuth2 authorization server
+   *
+   * @param tokenExchangeParameters The required parameters for a token exchange
+   * @return {@link TokenResponse}
+   */
+  @PostExchange(url = "https://www.bungie.net/platform/app/oauth/token/", contentType = "application/x-www-form-urlencoded")
+  ResponseEntity<TokenResponse> getAccessToken(
+      @RequestBody MultiValueMap<String, String> tokenExchangeParameters
+  );
 
   /**
    * Gets the membership info for the current user
@@ -47,10 +62,10 @@ public interface BungieClient {
    *
    * @param entityType     The entity type (see {@link ManifestEntity})
    * @param hashIdentifier The entity hash identifier
-   * @return {@link Mono} of {@link ResponseFields}
+   * @return {@link Mono} of {@link ManifestFields}
    */
   @GetExchange("/Destiny2/Manifest/{entityType}/{hashIdentifier}/")
-  Mono<BungieResponse<ResponseFields>> getManifestEntityRx(
+  Mono<BungieResponse<ManifestFields>> getManifestEntityRx(
       @PathVariable(value = "entityType") String entityType,
       @PathVariable(value = "hashIdentifier") String hashIdentifier);
 
@@ -60,10 +75,10 @@ public interface BungieClient {
    *
    * @param entityType     The entity type (see {@link ManifestEntity})
    * @param hashIdentifier The entity hash identifier
-   * @return {@link Mono} of {@link ResponseFields}
+   * @return {@link Mono} of {@link ManifestFields}
    */
   @GetExchange("/Destiny2/Manifest/{entityType}/{hashIdentifier}/")
-  ResponseEntity<BungieResponse<ResponseFields>> getManifestEntity(
+  ResponseEntity<BungieResponse<ManifestFields>> getManifestEntity(
       @PathVariable String entityType, @PathVariable Long hashIdentifier);
 
   /**

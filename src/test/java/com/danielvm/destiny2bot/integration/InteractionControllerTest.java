@@ -109,7 +109,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         .build();
 
     stubFor(get(urlPathEqualTo("/bungie/Destiny2/Milestones/"))
-        .withHeader("x-api-key", equalTo(bungieConfiguration.getKey()))
+        .withHeader("x-api-key", equalTo(bungieConfiguration.getApiKey()))
         .willReturn(aResponse()
             .withStatus(200)
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -120,7 +120,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
     stubFor(get(urlPathEqualTo(
         "/bungie/Destiny2/Manifest/%s/%s/".formatted(activityDefinition, activityHash)))
-        .withHeader("x-api-key", equalTo(bungieConfiguration.getKey()))
+        .withHeader("x-api-key", equalTo(bungieConfiguration.getApiKey()))
         .willReturn(aResponse()
             .withStatus(200)
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -129,7 +129,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
     var masterDungeonHash = "2296818662";
     stubFor(get(urlPathEqualTo(
         "/bungie/Destiny2/Manifest/%s/%s/".formatted(activityDefinition, masterDungeonHash)))
-        .withHeader("x-api-key", equalTo(bungieConfiguration.getKey()))
+        .withHeader("x-api-key", equalTo(bungieConfiguration.getApiKey()))
         .willReturn(aResponse()
             .withStatus(200)
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -140,7 +140,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
     stubFor(get(urlPathEqualTo(
         "/bungie/Destiny2/Manifest/%s/%s/".formatted(activityTypeDefinition, activityTypeHash)))
-        .withHeader("x-api-key", equalTo(bungieConfiguration.getKey()))
+        .withHeader("x-api-key", equalTo(bungieConfiguration.getApiKey()))
         .willReturn(aResponse()
             .withStatus(200)
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -151,7 +151,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
     stubFor(get(urlPathEqualTo(
         "/bungie/Destiny2/Manifest/%s/%s/".formatted(milestoneDefinition, milestoneHash)))
-        .withHeader("x-api-key", equalTo(bungieConfiguration.getKey()))
+        .withHeader("x-api-key", equalTo(bungieConfiguration.getApiKey()))
         .willReturn(aResponse()
             .withStatus(200)
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -183,7 +183,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         .data(weeklyRaidData).build();
 
     stubFor(get(urlPathEqualTo("/bungie/Destiny2/Milestones/"))
-        .withHeader("x-api-key", equalTo(bungieConfiguration.getKey()))
+        .withHeader("x-api-key", equalTo(bungieConfiguration.getApiKey()))
         .willReturn(aResponse()
             .withStatus(200)
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -194,7 +194,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
     stubFor(get(urlPathEqualTo(
         "/bungie/Destiny2/Manifest/%s/%s/".formatted(activityDefinition, activityHash)))
-        .withHeader("x-api-key", equalTo(bungieConfiguration.getKey()))
+        .withHeader("x-api-key", equalTo(bungieConfiguration.getApiKey()))
         .willReturn(aResponse()
             .withStatus(200)
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -205,7 +205,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
     stubFor(get(urlPathEqualTo(
         "/bungie/Destiny2/Manifest/%s/%s/".formatted(activityTypeDefinition, activityTypeHash)))
-        .withHeader("x-api-key", equalTo(bungieConfiguration.getKey()))
+        .withHeader("x-api-key", equalTo(bungieConfiguration.getApiKey()))
         .willReturn(aResponse()
             .withStatus(200)
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -216,7 +216,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
     stubFor(get(urlPathEqualTo(
         "/bungie/Destiny2/Manifest/%s/%s/".formatted(milestoneDefinition, milestoneHash)))
-        .withHeader("x-api-key", equalTo(bungieConfiguration.getKey()))
+        .withHeader("x-api-key", equalTo(bungieConfiguration.getApiKey()))
         .willReturn(aResponse()
             .withStatus(200)
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -248,7 +248,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         .data(weeklyRaidData).build();
 
     stubFor(get(urlPathEqualTo("/bungie/Destiny2/Milestones/"))
-        .withHeader("x-api-key", equalTo(bungieConfiguration.getKey()))
+        .withHeader("x-api-key", equalTo(bungieConfiguration.getApiKey()))
         .willReturn(aResponse()
             .withStatus(400)
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)

@@ -32,14 +32,3 @@ CREATE TABLE IF NOT EXISTS character_raid
     user_character_id    BIGINT,
     CONSTRAINT user_character_fk FOREIGN KEY (user_character_id) REFERENCES bungie_user_character (character_id)
 );
-
-CREATE TABLE IF NOT EXISTS raid_participant
-(
-    membership_id   BIGINT PRIMARY KEY,
-    username        VARCHAR(100) NOT NULL,
-    character_class VARCHAR(10)  NOT NULL,
-    icon_path       VARCHAR(100) NOT NULL,
-    completed       BOOLEAN      NOT NULL,
-    raid_instance   BIGINT,
-    FOREIGN KEY (raid_instance) REFERENCES character_raid (instance_id)
-);

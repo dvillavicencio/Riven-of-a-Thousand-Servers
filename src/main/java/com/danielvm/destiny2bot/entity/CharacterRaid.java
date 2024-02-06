@@ -1,13 +1,10 @@
 package com.danielvm.destiny2bot.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Instant;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -53,7 +50,4 @@ public class CharacterRaid {
 
   @Column(name = "user_character_id")
   private Long userCharacterId;
-
-  @OneToMany(mappedBy = "raidInstance", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<RaidParticipant> participants;
 }

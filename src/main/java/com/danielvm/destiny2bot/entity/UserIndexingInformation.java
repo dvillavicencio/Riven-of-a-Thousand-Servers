@@ -14,8 +14,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "user_page_information")
-public class UserPageInformation {
+@Table(name = "user_indexing_information")
+public class UserIndexingInformation {
 
   @Id
   @Column(name = "user_discord_id")
@@ -26,4 +26,7 @@ public class UserPageInformation {
 
   @Column(name = "last_page")
   private Integer lastPage;
+
+  @Column(name = "is_indexing")
+  private Boolean isIndexing;
 }

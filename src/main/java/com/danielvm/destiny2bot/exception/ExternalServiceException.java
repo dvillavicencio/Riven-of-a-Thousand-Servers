@@ -11,4 +11,8 @@ public class ExternalServiceException extends BaseException {
   public ExternalServiceException(String message, HttpStatus status, Throwable cause) {
     super(message, status, cause);
   }
+
+  public ExternalServiceException(String message) {
+    super(message, HttpStatus.SERVICE_UNAVAILABLE);
+  }
 }

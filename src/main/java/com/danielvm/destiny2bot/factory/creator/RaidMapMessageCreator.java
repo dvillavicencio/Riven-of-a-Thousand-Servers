@@ -26,7 +26,6 @@ import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-
 @Slf4j
 @org.springframework.stereotype.Component
 public class RaidMapMessageCreator implements ApplicationCommandSource, AutocompleteSource {
