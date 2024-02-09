@@ -15,19 +15,19 @@ import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
-public class DestinyCharacterService {
+public class UserCharacterService {
 
   private final BungieClient reactiveBungieClient;
   private final UserDetailsReactiveDao userDetailsReactiveDao;
-  private final BungieMembershipService bungieMembershipService;
+  private final BungieAPIService bungieAPIService;
 
-  public DestinyCharacterService(
+  public UserCharacterService(
       BungieClient reactiveBungieClient,
       UserDetailsReactiveDao userDetailsReactiveDao,
-      BungieMembershipService bungieMembershipService) {
+      BungieAPIService bungieAPIService) {
     this.reactiveBungieClient = reactiveBungieClient;
     this.userDetailsReactiveDao = userDetailsReactiveDao;
-    this.bungieMembershipService = bungieMembershipService;
+    this.bungieAPIService = bungieAPIService;
   }
 
   /**
@@ -41,7 +41,7 @@ public class DestinyCharacterService {
         .filterWhen(userDetailsReactiveDao::existsByDiscordId)
         .flatMap(userDetailsReactiveDao::getByDiscordId)
         .map(userDetails -> OAuth2Util.formatBearerToken(userDetails.getAccessToken()))
-        .flatMap(bungieMembershipService::getUserMembershipInformation)
+        .flatMap(bungieAPIService::getUserMembershipInformation)
         .flatMap(membershipResponse -> {
           Long membershipId = MembershipUtil.extractMembershipId(membershipResponse);
           Integer membershipType = MembershipUtil.extractMembershipType(membershipResponse);
@@ -53,7 +53,7 @@ public class DestinyCharacterService {
         .switchIfEmpty(Mono.error(
             new ResourceNotFoundException("No characters found for user [%s]".formatted(userId))))
         .map(entry -> {
-          String characterId = entry.getKey();
+          Long characterId = entry.getKey();
           String characterClass = DestinyClass.findByCode(entry.getValue().getClassType())
               .getName();
           String characterRace = DestinyRace.findByCode(entry.getValue().getRaceType()).getName();

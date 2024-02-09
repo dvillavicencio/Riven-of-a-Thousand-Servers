@@ -48,6 +48,9 @@ public class CharacterRaid {
   @Column(name = "raid_duration")
   private String raidDuration;
 
+  @Column(name = "is_hard_mode")
+  private Boolean isHardMode;
+
   @Column(name = "user_character_id")
   private Long userCharacterId;
 }

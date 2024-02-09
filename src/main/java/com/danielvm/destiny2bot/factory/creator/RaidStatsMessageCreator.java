@@ -4,7 +4,7 @@ import com.danielvm.destiny2bot.dto.discord.Choice;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
-import com.danielvm.destiny2bot.service.DestinyCharacterService;
+import com.danielvm.destiny2bot.service.UserCharacterService;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -13,11 +13,11 @@ public class RaidStatsMessageCreator implements ApplicationCommandSource,
     AutocompleteSource {
 
   private static final String CHOICE_FORMAT = "[%s] %s - %s";
-  private final DestinyCharacterService destinyCharacterService;
+  private final UserCharacterService userCharacterService;
 
   public RaidStatsMessageCreator(
-      DestinyCharacterService destinyCharacterService) {
-    this.destinyCharacterService = destinyCharacterService;
+      UserCharacterService userCharacterService) {
+    this.userCharacterService = userCharacterService;
   }
 
   @Override
@@ -28,7 +28,7 @@ public class RaidStatsMessageCreator implements ApplicationCommandSource,
   @Override
   public Mono<InteractionResponse> autocompleteResponse(Interaction interaction) {
     String userId = interaction.getMember().getUser().getId();
-    return destinyCharacterService.getCharactersForUser(userId)
+    return userCharacterService.getCharactersForUser(userId)
         .map(character -> new Choice(CHOICE_FORMAT.formatted(
             character.getLightLevel(), character.getCharacterRace(), character.getCharacterClass()),
             character.getCharacterId()))

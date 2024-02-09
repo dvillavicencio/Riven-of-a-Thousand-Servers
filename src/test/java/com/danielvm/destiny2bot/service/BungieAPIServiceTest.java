@@ -19,13 +19,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
 @ExtendWith(MockitoExtension.class)
-public class BungieMembershipServiceTest {
+public class BungieAPIServiceTest {
 
   @Mock
   private BungieClient bungieClientMock;
 
   @InjectMocks
-  private BungieMembershipService sut;
+  private BungieAPIService sut;
 
   @Test
   @DisplayName("Get membership for user should work as expected")

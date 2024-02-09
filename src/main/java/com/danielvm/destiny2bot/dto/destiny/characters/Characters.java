@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Characters {
 
-  private Map<String, CharacterInfo> data;
+  private Map<Long, CharacterInfo> data;
 }

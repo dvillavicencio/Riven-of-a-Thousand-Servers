@@ -18,9 +18,8 @@ public class AuthorizeMessageCreator implements ApplicationCommandSource {
 
   public static final String MESSAGE_TITLE = "**Link Bungie and Discord accounts here**";
   public static final String MESSAGE_DESCRIPTION = """
-      Riven can grant you wishes unique to your Destiny 2 characters.
-            
-      However, in order for her to do that you must authorize her to read a sub-set of your Destiny 2 data beforehand.
+      Riven can fulfill commands that are unique to your Destiny 2 characters.
+      However, in order for her to do that we must first link your Discord account with your Destiny 2 account.
       """;
   private static final Integer EPHEMERAL_BYTE = 1000000;
 

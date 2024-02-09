@@ -16,6 +16,7 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
@@ -81,7 +82,8 @@ public class UserRegistrationService {
         Objects.isNull(userDetails.getBody().getUsername()) ||
         Objects.isNull(userDetails.getBody().getId())) {
       log.error("Required parameters for a Discord user are null or something went wrong");
-      throw new InternalServerException("Required parameters for a Discord user are not valid or not present",
+      throw new InternalServerException(
+          "Required parameters for a Discord user are not valid or not present",
           HttpStatus.BAD_GATEWAY);
     }
 
@@ -101,6 +103,7 @@ public class UserRegistrationService {
    * @param authorizationCode The authorization code from Bungie
    * @param httpSession       The HttpSession the user is linked to
    */
+  @Async
   public void saveUserDetails(String authorizationCode, HttpSession httpSession) {
     MultiValueMap<String, String> tokenExchangeParameters = OAuth2Util.buildTokenExchangeParameters(
         authorizationCode, bungieConfiguration.getCallbackUrl(),
@@ -130,13 +133,9 @@ public class UserRegistrationService {
         .build();
 
     log.info("Starting Destiny 2 Character load process for user [{}]", discordUser);
-
-    userRaidDataService.loadUserDetailsAndCharacters(membershipId, membershipType, botUser);
+    userRaidDataService.loadUserDetailsAndCharacters(botUser);
     userRaidDataService.loadCharactersActivityHistory(botUser);
-
     log.info("Finished Destiny 2 Character loading process for user [{}]", discordUser);
-
-    httpSession.invalidate();
   }
 
 }

@@ -17,6 +17,7 @@ import com.danielvm.destiny2bot.dto.destiny.membership.MembershipResponse;
 import com.danielvm.destiny2bot.dto.destiny.membership.Memberships;
 import com.danielvm.destiny2bot.dto.discord.DiscordUserResponse;
 import com.danielvm.destiny2bot.dto.oauth2.TokenResponse;
+import com.danielvm.destiny2bot.entity.BotUser;
 import com.danielvm.destiny2bot.exception.InternalServerException;
 import com.danielvm.destiny2bot.util.OAuth2Util;
 import jakarta.servlet.http.HttpSession;
@@ -265,7 +266,7 @@ public class UserRegistrationServiceTest {
     // then: the correct interactions happens
     verify(bungieClient, times(1)).getAccessToken(tokenParameters);
     verify(bungieClient, times(1)).getMembershipForCurrentUser("Bearer accessToken");
-    verify(userRaidDataService, times(1)).loadUserDetailsAndCharacters(eq(1L), eq(3), any());
+    verify(userRaidDataService, times(1)).loadUserDetailsAndCharacters(any());
     verify(userRaidDataService, times(1)).loadCharactersActivityHistory(any());
   }
 
@@ -292,7 +293,7 @@ public class UserRegistrationServiceTest {
     // then: the correct interactions happens
     verify(bungieClient, times(1)).getAccessToken(tokenParameters);
     verify(bungieClient, times(0)).getMembershipForCurrentUser("Bearer accessToken");
-    verify(userRaidDataService, times(0)).loadUserDetailsAndCharacters(eq(1L), eq(3), any());
+    verify(userRaidDataService, times(0)).loadUserDetailsAndCharacters(any());
     verify(userRaidDataService, times(0)).loadCharactersActivityHistory(any());
   }
 
@@ -320,7 +321,7 @@ public class UserRegistrationServiceTest {
     // then: the correct interactions happens
     verify(bungieClient, times(1)).getAccessToken(tokenParameters);
     verify(bungieClient, times(0)).getMembershipForCurrentUser("Bearer accessToken");
-    verify(userRaidDataService, times(0)).loadUserDetailsAndCharacters(eq(1L), eq(3), any());
+    verify(userRaidDataService, times(0)).loadUserDetailsAndCharacters(any());
     verify(userRaidDataService, times(0)).loadCharactersActivityHistory(any());
   }
 
@@ -351,7 +352,7 @@ public class UserRegistrationServiceTest {
     // then: the correct interactions happens
     verify(bungieClient, times(1)).getAccessToken(tokenParameters);
     verify(bungieClient, times(1)).getMembershipForCurrentUser("Bearer accessToken");
-    verify(userRaidDataService, times(0)).loadUserDetailsAndCharacters(eq(1L), eq(3), any());
+    verify(userRaidDataService, times(0)).loadUserDetailsAndCharacters(any());
     verify(userRaidDataService, times(0)).loadCharactersActivityHistory(any());
   }
 
@@ -384,7 +385,7 @@ public class UserRegistrationServiceTest {
     // then: the correct interactions happens
     verify(bungieClient, times(1)).getAccessToken(tokenParameters);
     verify(bungieClient, times(1)).getMembershipForCurrentUser("Bearer accessToken");
-    verify(userRaidDataService, times(0)).loadUserDetailsAndCharacters(eq(1L), eq(3), any());
+    verify(userRaidDataService, times(0)).loadUserDetailsAndCharacters(any(BotUser.class));
     verify(userRaidDataService, times(0)).loadCharactersActivityHistory(any());
   }
 

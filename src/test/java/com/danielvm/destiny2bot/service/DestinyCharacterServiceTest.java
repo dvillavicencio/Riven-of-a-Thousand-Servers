@@ -15,10 +15,10 @@ public class DestinyCharacterServiceTest {
   UserDetailsReactiveDao userDetailsReactiveDao;
 
   @Mock
-  BungieMembershipService bungieMembershipService;
+  BungieAPIService bungieAPIService;
 
   @InjectMocks
-  DestinyCharacterService sut;
+  UserCharacterService sut;
 
 
 

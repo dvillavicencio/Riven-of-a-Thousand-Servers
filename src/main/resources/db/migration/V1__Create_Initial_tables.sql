@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS character_raid
     oponents_defeated    INTEGER      NOT NULL,
     kill_death_assists   DECIMAL      NOT NULL,
     raid_duration        VARCHAR(50)  NOT NULL,
+    is_hard_mode         BOOLEAN,
     user_character_id    BIGINT,
     CONSTRAINT user_character_fk FOREIGN KEY (user_character_id) REFERENCES bungie_user_character (character_id)
 );

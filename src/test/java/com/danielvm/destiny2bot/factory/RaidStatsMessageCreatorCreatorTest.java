@@ -9,7 +9,7 @@ import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.Member;
 import com.danielvm.destiny2bot.factory.creator.RaidStatsMessageCreator;
-import com.danielvm.destiny2bot.service.DestinyCharacterService;
+import com.danielvm.destiny2bot.service.UserCharacterService;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.assertj.core.api.Assertions;
@@ -27,7 +27,7 @@ import reactor.test.StepVerifier.FirstStep;
 public class RaidStatsMessageCreatorCreatorTest {
 
   @Mock
-  DestinyCharacterService destinyCharacterService;
+  UserCharacterService userCharacterService;
 
   @InjectMocks
   RaidStatsMessageCreator sut;
@@ -40,12 +40,12 @@ public class RaidStatsMessageCreatorCreatorTest {
     DiscordUser user = new DiscordUser(userId, "deahtstroke");
     Interaction interaction = Interaction.builder().member(new Member(user)).build();
     List<DestinyCharacter> characters = List.of(
-        new DestinyCharacter("1", "Titan", 1890, "Human"),
-        new DestinyCharacter("2", "Warlock", 1890, "Awoken"),
-        new DestinyCharacter("3", "Hunter", 1890, "Exo")
+        new DestinyCharacter(1L, "Titan", 1890, "Human"),
+        new DestinyCharacter(2L, "Warlock", 1890, "Awoken"),
+        new DestinyCharacter(3L, "Hunter", 1890, "Exo")
     );
 
-    when(destinyCharacterService.getCharactersForUser(userId))
+    when(userCharacterService.getCharactersForUser(userId))
         .thenReturn(Flux.fromIterable(characters));
 
     // when: createMessage is called
@@ -79,10 +79,10 @@ public class RaidStatsMessageCreatorCreatorTest {
     DiscordUser user = new DiscordUser(userId, "deahtstroke");
     Interaction interaction = Interaction.builder().member(new Member(user)).build();
     List<DestinyCharacter> characters = List.of(
-        new DestinyCharacter("1", "Titan", 1890, "Human")
+        new DestinyCharacter(1L, "Titan", 1890, "Human")
     );
 
-    when(destinyCharacterService.getCharactersForUser(userId)).thenReturn(
+    when(userCharacterService.getCharactersForUser(userId)).thenReturn(
         Flux.fromIterable(characters));
 
     // when: createMessage is called

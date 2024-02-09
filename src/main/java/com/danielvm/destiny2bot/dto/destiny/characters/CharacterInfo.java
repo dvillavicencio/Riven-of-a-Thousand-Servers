@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CharacterInfo {
 
-  private String membershipId;
+  private Long membershipId;
   private Integer membershipType;
-  private String CharacterId;
+  private Long CharacterId;
   private Integer light;
   private Integer raceType;
   private Integer genderType;

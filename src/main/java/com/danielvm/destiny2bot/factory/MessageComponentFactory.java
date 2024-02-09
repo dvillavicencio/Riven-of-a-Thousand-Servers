@@ -3,6 +3,8 @@ package com.danielvm.destiny2bot.factory;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import com.danielvm.destiny2bot.factory.creator.MessageComponentSource;
 import com.danielvm.destiny2bot.factory.creator.WIRDButtonMessageCreator;
+import com.danielvm.destiny2bot.factory.creator.WhyAuthorizeButtonMessageCreator;
+import com.danielvm.destiny2bot.util.MessageComponentUtil;
 import java.util.Map;
 import java.util.Objects;
 import org.springframework.stereotype.Component;
@@ -12,9 +14,12 @@ public class MessageComponentFactory {
 
   private final Map<String, MessageComponentSource> messageComponentFactory;
 
-  public MessageComponentFactory(WIRDButtonMessageCreator wirdButtonMessageCreator) {
+  public MessageComponentFactory(
+      WIRDButtonMessageCreator wirdButtonMessageCreator,
+      WhyAuthorizeButtonMessageCreator whyAuthorizeButtonMessageCreator) {
     this.messageComponentFactory = Map.of(
-        "WIRD", wirdButtonMessageCreator
+        MessageComponentUtil.WIRD_BUTTON_ID, wirdButtonMessageCreator,
+        MessageComponentUtil.WHY_AUTHORIZE_BUTTON_ID, whyAuthorizeButtonMessageCreator
     );
   }
 

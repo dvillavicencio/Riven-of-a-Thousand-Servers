@@ -5,7 +5,6 @@ import com.danielvm.destiny2bot.dto.destiny.manifest.ManifestFields;
 import com.danielvm.destiny2bot.enums.ManifestEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -19,13 +18,10 @@ import reactor.core.publisher.Mono;
 public class BungieManifestClient {
 
   private final BungieClient reactiveClient;
-  private final BungieClient imperativeClient;
 
   public BungieManifestClient(
-      BungieClient reactiveBungieClient,
-      BungieClient imperativeBungieClient) {
+      BungieClient reactiveBungieClient) {
     this.reactiveClient = reactiveBungieClient;
-    this.imperativeClient = imperativeBungieClient;
   }
 
   /**
@@ -40,18 +36,4 @@ public class BungieManifestClient {
       ManifestEntity entityType, String hashIdentifier) {
     return reactiveClient.getManifestEntityRx(entityType.getId(), hashIdentifier).cache();
   }
-
-  /**
-   * Wraps the client call to the Manifest with a Cacheable method with the imperative Rest Client
-   *
-   * @param entityType     The entity type (see {@link ManifestEntity})
-   * @param hashIdentifier The hash identifier
-   * @return {@link BungieResponse} of {@link ManifestFields}
-   */
-  @Cacheable(cacheNames = "entityImperative", cacheManager = "inMemoryCacheManager")
-  public ResponseEntity<BungieResponse<ManifestFields>> getManifestEntity(
-      ManifestEntity entityType, Long hashIdentifier) {
-    return imperativeClient.getManifestEntity(entityType.getId(), hashIdentifier);
-  }
-
 }

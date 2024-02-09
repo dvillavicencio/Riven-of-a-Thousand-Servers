@@ -18,11 +18,13 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @EnableCaching
+@EnableAsync
 @SpringBootApplication
 @EnableAspectJAutoProxy
 public class Destiny2botApplication {

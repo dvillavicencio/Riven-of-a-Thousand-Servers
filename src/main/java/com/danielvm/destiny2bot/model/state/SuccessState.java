@@ -1,18 +1,22 @@
 package com.danielvm.destiny2bot.model.state;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
-public class SuccessState {
+@Component
+public class SuccessState implements NotificationState {
 
   private static final String SUCCESS_EMOJI_CODE = ":white_check_mark:";
 
-  public static void updateState(MutableMessagePart mutableMessagePart) {
+  @Override
+  public void updateState(MutableMessagePart mutableMessagePart) {
     mutableMessagePart.setEmoji(SUCCESS_EMOJI_CODE);
   }
 
-  public static void logStatus(Long user, String character, Long characterId) {
-    log.info("Finished indexing character [{}] with Id [{}] for user [{}]", character, characterId,
-        user);
+  @Override
+  public void logStatus(String user, String character, Long characterId) {
+    log.info("Successfully indexed character [{}] with Id [{}] for user [{}]", character,
+        characterId, user);
   }
 }

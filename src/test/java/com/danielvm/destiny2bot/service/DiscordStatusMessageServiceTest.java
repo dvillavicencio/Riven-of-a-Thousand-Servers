@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class IndexingStatusServiceTest {
+public class DiscordStatusMessageServiceTest {
 
   @Mock
   private DiscordConfiguration discordConfiguration;
@@ -17,7 +17,7 @@ public class IndexingStatusServiceTest {
   private DiscordClient discordClient;
 
   @InjectMocks
-  private IndexingStatusService sut;
+  private DiscordStatusMessageService sut;
 
 
 }

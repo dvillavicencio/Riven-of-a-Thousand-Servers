@@ -51,7 +51,6 @@ public abstract class BaseIntegrationTest {
       "redis:5.0.3-alpine").withExposedPorts(6379);
 
   private static final String MALICIOUS_PRIVATE_KEY = "CE4517095255B0C92D586AF9EEC27B998D68775363F9FE74341483FB3A657CEC";
-
   private static final String VALID_PRIVATE_KEY = "F0EA3A0516695324C03ED552CD5A08A58CA1248172E8816C3BF235E52E75A7BF";
 
   @LocalServerPort

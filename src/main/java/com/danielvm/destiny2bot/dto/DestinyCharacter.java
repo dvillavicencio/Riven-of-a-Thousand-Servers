@@ -12,7 +12,7 @@ public class DestinyCharacter {
   /**
    * The characterId
    */
-  private String characterId;
+  private Long characterId;
 
   /**
    * The character class of this character, e.g., Titan, Warlock, or Hunter
