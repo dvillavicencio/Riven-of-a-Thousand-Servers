@@ -167,7 +167,7 @@ public class UserRaidDataServiceTest {
         .thenReturn(manifestFields);
 
     PostGameCarnageReport report = new PostGameCarnageReport(Instant.now(), true, null);
-    when(bungieAPIService.getPGCR("Bearer access_token", 67890L))
+    when(bungieAPIService.getPGCR("access_token", 67890L))
         .thenReturn(report);
 
     UserIndexing userIndexing = new UserIndexing(discordId, true, new ArrayList<>());

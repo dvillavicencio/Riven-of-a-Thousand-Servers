@@ -55,7 +55,7 @@ public class RegistrationController {
   public ResponseEntity<?> handleCallBackFromBungie(
       @RequestParam(OAuth2Params.CODE) String authorizationCode,
       HttpSession httpSession) {
-    userRegistrationService.saveUserDetails(authorizationCode, httpSession);
+    userRegistrationService.authenticateBungieUser(authorizationCode, httpSession);
     return ResponseEntity.noContent().build();
   }
 

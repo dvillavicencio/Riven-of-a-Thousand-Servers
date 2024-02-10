@@ -5,7 +5,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
@@ -13,19 +12,15 @@ import com.danielvm.destiny2bot.dao.UserDetailsReactiveDao;
 import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
 import com.danielvm.destiny2bot.dto.discord.Choice;
-import com.danielvm.destiny2bot.dto.discord.DiscordUser;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionData;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
-import com.danielvm.destiny2bot.dto.discord.Member;
 import com.danielvm.destiny2bot.dto.discord.Option;
-import com.danielvm.destiny2bot.entity.UserDetails;
 import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.enums.ManifestEntity;
 import com.danielvm.destiny2bot.enums.Raid;
 import com.danielvm.destiny2bot.enums.RaidEncounter;
 import com.danielvm.destiny2bot.util.MessageUtil;
-import com.danielvm.destiny2bot.util.OAuth2Util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -34,7 +29,6 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -330,169 +324,6 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         .expectBody()
         .consumeWith(System.out::println)
         .jsonPath("$.status").isEqualTo(HttpStatus.BAD_REQUEST.value());
-  }
-
-  @Test
-  @DisplayName("Autocomplete requests for raid stats returns the user's characters successfully")
-  public void autocompleteRequestsForRaidStats() throws DecoderException, JsonProcessingException {
-    // given: a valid autocomplete request
-    String username = "deahtstroke";
-    String discordId = "123456";
-
-    DiscordUser user = new DiscordUser(discordId, username);
-    Member memberInfo = new Member(user);
-    InteractionData data = InteractionData.builder().id("2").name("raid_stats").type(1)
-        .build();
-    Interaction body = Interaction.builder()
-        .id("1").applicationId("theApplicationId").type(4).data(data).member(memberInfo)
-        .build();
-
-    // dummy entity in Redis
-    String accessToken = "j7ondo?R0s9Ahff33DVt2M=CBCEsgtw30UAQGWnpQg1";
-    String refreshToken = "V-pUflrJwOrG=bqQ/Ky3gJ-ioVg7b9/9xo?o-kFyHbZM9Zb";
-    UserDetails entity = new UserDetails(discordId, username, accessToken, refreshToken,
-        Instant.now().plusSeconds(9600));
-    userDetailsReactiveDao.save(entity).subscribe();
-
-    stubFor(get(urlPathEqualTo("/bungie/User/GetMembershipsForCurrentUser/"))
-        .withHeader(HttpHeaders.AUTHORIZATION, equalTo(OAuth2Util.formatBearerToken(accessToken)))
-        .willReturn(aResponse()
-            .withStatus(HttpStatus.OK.value())
-            .withHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .withBodyFile("bungie/bungie-membership-data.json")));
-
-    stubFor(get(urlPathMatching("/bungie/Destiny2/3/Profile/0884665266181166124/"))
-        .withQueryParam("components", equalTo("200"))
-        .willReturn(aResponse()
-            .withStatus(HttpStatus.OK.value())
-            .withHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .withBodyFile("bungie/user-characters-response.json")));
-
-    // when: the request is sent
-    ResponseSpec response = sendValidSignatureRequest("/interactions", body);
-
-    // then: the response has the correct user character details and the 'All' option
-    response
-        .expectStatus().isOk()
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody()
-        .jsonPath("$.type").value(field -> assertThat(field).isEqualTo(8))
-        .jsonPath("$.data.choices.size()").value(size -> assertThat(size).isEqualTo(4))
-        .jsonPath("$.data.choices[?(@.value == 2305843009409260500)].name")
-        .isEqualTo("[1810] Exo - Titan")
-        .jsonPath("$.data.choices[?(@.value == 2305843009411211066)].name")
-        .isEqualTo("[1626] Human - Hunter")
-        .jsonPath("$.data.choices[?(@.value == 2305843010529424533)].name")
-        .isEqualTo("[1777] Human - Warlock")
-        .jsonPath("$.data.choices[?(@.name == 'All')].value")
-        .isEqualTo("Gets stats for all characters");
-  }
-
-  @Test
-  @DisplayName("Autocomplete requests for raid stats returns user characters when user only has one character")
-  public void autocompleteRequestForUsersWithOneCharacter()
-      throws DecoderException, JsonProcessingException {
-    // given: a valid autocomplete request
-    String username = "deahtstroke";
-    String discordId = "123456";
-
-    DiscordUser user = new DiscordUser(discordId, username);
-    Member memberInfo = new Member(user);
-    InteractionData data = InteractionData.builder()
-        .id("2").name("raid_stats").type(1)
-        .build();
-    Interaction body = Interaction.builder()
-        .id("1").applicationId("theApplicationId").type(4).data(data).member(memberInfo)
-        .build();
-
-    // dummy entity in Redis
-    String accessToken = "j7ondo?R0s9Ahff33DVt2M=CBCEsgtw30UAQGWnpQg1";
-    String refreshToken = "V-pUflrJwOrG=bqQ/Ky3gJ-ioVg7b9/9xo?o-kFyHbZM9Zb";
-    UserDetails entity = new UserDetails(discordId, username, accessToken, refreshToken,
-        Instant.now().plusSeconds(9600));
-    userDetailsReactiveDao.save(entity).subscribe();
-
-    stubFor(get(urlPathEqualTo("/bungie/User/GetMembershipsForCurrentUser/"))
-        .withHeader(HttpHeaders.AUTHORIZATION, equalTo(OAuth2Util.formatBearerToken(accessToken)))
-        .willReturn(aResponse()
-            .withStatus(HttpStatus.OK.value())
-            .withHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .withBodyFile("bungie/bungie-membership-data.json")));
-
-    stubFor(get(urlPathMatching("/bungie/Destiny2/3/Profile/0884665266181166124/"))
-        .withQueryParam("components", equalTo("200"))
-        .willReturn(aResponse()
-            .withStatus(HttpStatus.OK.value())
-            .withHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .withBodyFile("bungie/user-single-character-response.json")));
-
-    // when: the request is sent
-    ResponseSpec response = sendValidSignatureRequest("/interactions", body);
-
-    // then: the response has the correct user character details and the 'All' option is not present
-    response
-        .expectStatus().isOk()
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody()
-        .jsonPath("$.type").value(field -> assertThat(field).isEqualTo(8))
-        .jsonPath("$.data.choices.size()").value(size -> assertThat(size).isEqualTo(1))
-        .jsonPath("$.data.choices[?(@.value == 2305843009409260500)].name")
-        .isEqualTo("[1810] Exo - Titan");
-  }
-
-  @Test
-  @DisplayName("Autocomplete requests for raid stats should fail if the user does not have characters")
-  public void autocompleteRequestFailsForEmptyCharactersFromBungie()
-      throws DecoderException, JsonProcessingException {
-    // given: a valid autocomplete request
-    String username = "deahtstroke";
-    String discordId = "123456";
-
-    DiscordUser user = new DiscordUser(discordId, username);
-    Member memberInfo = new Member(user);
-    InteractionData data = InteractionData.builder()
-        .id("1").name("raid_stats").type(1)
-        .build();
-    Interaction body = Interaction.builder()
-        .id("1").applicationId("theApplicationId").data(data).member(memberInfo).type(4)
-        .build();
-
-    // dummy entity in Redis
-    String accessToken = "j7ondo?R0s9Ahff33DVt2M=CBCEsgtw30UAQGWnpQg1";
-    String refreshToken = "V-pUflrJwOrG=bqQ/Ky3gJ-ioVg7b9/9xo?o-kFyHbZM9Zb";
-    UserDetails entity = new UserDetails(discordId, username, accessToken, refreshToken,
-        Instant.now().plusSeconds(9600));
-    userDetailsReactiveDao.save(entity).subscribe();
-
-    stubFor(get(urlPathEqualTo("/bungie/User/GetMembershipsForCurrentUser/"))
-        .withHeader(HttpHeaders.AUTHORIZATION, equalTo(OAuth2Util.formatBearerToken(accessToken)))
-        .willReturn(aResponse()
-            .withStatus(HttpStatus.OK.value())
-            .withHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .withBodyFile("bungie/bungie-membership-data.json")));
-
-    stubFor(get(urlPathMatching("/bungie/Destiny2/3/Profile/0884665266181166124/"))
-        .withQueryParam("components", equalTo("200"))
-        .willReturn(aResponse()
-            .withStatus(HttpStatus.OK.value())
-            .withHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .withBodyFile("bungie/empty-character-response.json")));
-
-    // when: the request is sent
-    ResponseSpec response = sendValidSignatureRequest("/interactions", body);
-
-    // then: the response has the correct user character details and the 'All' option is not present
-    response
-        .expectStatus().isNotFound()
-        .expectBody()
-        .jsonPath("$.detail").isEqualTo("No characters found for user [%s]".formatted(discordId))
-        .jsonPath("$.status").isEqualTo(404);
   }
 
   @Test

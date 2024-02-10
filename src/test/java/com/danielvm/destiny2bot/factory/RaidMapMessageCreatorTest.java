@@ -3,7 +3,7 @@ package com.danielvm.destiny2bot.factory;
 import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.danielvm.destiny2bot.TestUtils;
+import com.danielvm.destiny2bot.ResourceUtils;
 import com.danielvm.destiny2bot.dto.discord.Attachment;
 import com.danielvm.destiny2bot.dto.discord.Choice;
 import com.danielvm.destiny2bot.dto.discord.Embedded;
@@ -89,8 +89,8 @@ public class RaidMapMessageCreatorTest {
         .build();
 
     Map<Long, Resource> resourcesMap = Map.of(
-        1L, TestUtils.createResourceWithName("kalli-action-phase.jpg"),
-        2L, TestUtils.createResourceWithName("kalli-dps-phase.jpg")
+        1L, ResourceUtils.createResourceWithName("kalli-action-phase.jpg"),
+        2L, ResourceUtils.createResourceWithName("kalli-dps-phase.jpg")
     );
 
     String raidName = "Last Wish";

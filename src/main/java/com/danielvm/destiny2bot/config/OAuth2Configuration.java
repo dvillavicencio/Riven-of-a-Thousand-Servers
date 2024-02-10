@@ -8,7 +8,5 @@ public interface OAuth2Configuration {
 
   String getCallbackUrl();
 
-  String getTokenUrl();
-
   String getAuthorizationUrl();
 }

@@ -1,0 +1,5 @@
+{
+  "expires_in": 3600,
+  "refresh_token": "someRefreshToken",
+  "token_type": "Bearer"
+}

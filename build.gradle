@@ -44,7 +44,6 @@ ext {
     set('flywayTestVersion', '10.0.0')
     set('tcPostgresVersion', '1.19.4')
     set('tcJdbcVersion', '1.19.4')
-    set('tcR2dbcVersion', '1.19.4')
     set('testContainersVersion', '1.19.2')
     set('tcJunitVersion', '1.19.3')
     set('junitJupiterParamsVersion', '5.10.1')
@@ -79,7 +78,6 @@ dependencies {
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation "org.testcontainers:jdbc:${tcJdbcVersion}"
-    testImplementation "org.testcontainers:r2dbc:${tcR2dbcVersion}"
     testImplementation "org.testcontainers:postgresql:${tcPostgresVersion}"
     testImplementation "org.testcontainers:junit-jupiter:${tcJunitVersion}"
     testImplementation "io.projectreactor:reactor-test:${reactorTestVersion}"

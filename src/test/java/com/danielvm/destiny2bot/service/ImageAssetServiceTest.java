@@ -3,7 +3,7 @@ package com.danielvm.destiny2bot.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.danielvm.destiny2bot.TestUtils;
+import com.danielvm.destiny2bot.ResourceUtils;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionData;
 import com.danielvm.destiny2bot.dto.discord.Option;
@@ -45,8 +45,8 @@ public class ImageAssetServiceTest {
     Interaction interaction = Interaction.builder().data(data).build();
 
     String basePath = "classpath:static/raids/%s/%s/*.*".formatted(raidName, raidEncounter);
-    Resource mockResource1 = TestUtils.createResourceWithContent("Hello");
-    Resource mockResource2 = TestUtils.createResourceWithContent("World");
+    Resource mockResource1 = ResourceUtils.createResourceWithContent("Hello");
+    Resource mockResource2 = ResourceUtils.createResourceWithContent("World");
     Resource[] resources = new Resource[]{mockResource1, mockResource2};
 
     when(resourcePatternResolver.getResources(basePath))

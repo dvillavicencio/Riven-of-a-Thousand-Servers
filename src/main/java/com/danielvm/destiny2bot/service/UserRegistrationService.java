@@ -12,7 +12,6 @@ import com.danielvm.destiny2bot.exception.InternalServerException;
 import com.danielvm.destiny2bot.util.MembershipUtil;
 import com.danielvm.destiny2bot.util.OAuth2Util;
 import jakarta.servlet.http.HttpSession;
-import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,16 +46,28 @@ public class UserRegistrationService {
   }
 
   private static TokenResponse verifyTokenParameters(ResponseEntity<TokenResponse> tokenResponse) {
-    if (Objects.isNull(tokenResponse) || Objects.isNull(tokenResponse.getBody()) ||
-        Objects.isNull(tokenResponse.getBody().getAccessToken()) ||
-        Objects.isNull(tokenResponse.getBody().getRefreshToken()) ||
-        Objects.isNull(tokenResponse.getBody().getExpiresIn())) {
+    if (tokenResponse == null || tokenResponse.getBody() == null ||
+        tokenResponse.getBody().getAccessToken() == null ||
+        tokenResponse.getBody().getRefreshToken() == null ||
+        tokenResponse.getBody().getExpiresIn() == null) {
       log.error("Token response parameters are null from Discord");
       throw new InternalServerException(
-          "Token response parameters from Discord were returned as null",
+          "Required Token response parameters from Discord are not present",
           HttpStatus.BAD_GATEWAY);
     }
     return tokenResponse.getBody();
+  }
+
+  private static DiscordUserResponse verifyUserDetails(
+      ResponseEntity<DiscordUserResponse> userDetails) {
+    if (userDetails == null || userDetails.getBody() == null ||
+        userDetails.getBody().getUsername() == null || userDetails.getBody().getId() == null) {
+      log.error("Required parameters for a Discord user are null or something went wrong");
+      throw new InternalServerException(
+          "Required parameters for a Discord user are not valid or not present",
+          HttpStatus.BAD_GATEWAY);
+    }
+    return userDetails.getBody();
   }
 
   /**
@@ -73,22 +84,12 @@ public class UserRegistrationService {
     TokenResponse tokenResponse = verifyTokenParameters(discordClient.getAccessToken(
         tokenExchangeParameters));
 
-    String bearerToken = tokenResponse.getAccessToken();
+    String bearerToken = OAuth2Util.formatBearerToken(tokenResponse.getAccessToken());
 
-    ResponseEntity<DiscordUserResponse> userDetails = discordClient.getUser(
-        OAuth2Util.formatBearerToken(bearerToken));
+    DiscordUserResponse userDetails = verifyUserDetails(discordClient.getUser(bearerToken));
 
-    if (Objects.isNull(userDetails) || Objects.isNull(userDetails.getBody()) ||
-        Objects.isNull(userDetails.getBody().getUsername()) ||
-        Objects.isNull(userDetails.getBody().getId())) {
-      log.error("Required parameters for a Discord user are null or something went wrong");
-      throw new InternalServerException(
-          "Required parameters for a Discord user are not valid or not present",
-          HttpStatus.BAD_GATEWAY);
-    }
-
-    session.setAttribute(DISCORD_USER_ID_KEY, userDetails.getBody().getId());
-    session.setAttribute(DISCORD_USER_ALIAS_KEY, userDetails.getBody().getUsername());
+    session.setAttribute(DISCORD_USER_ID_KEY, userDetails.getId());
+    session.setAttribute(DISCORD_USER_ALIAS_KEY, userDetails.getUsername());
   }
 
   /**
@@ -104,7 +105,7 @@ public class UserRegistrationService {
    * @param httpSession       The HttpSession the user is linked to
    */
   @Async
-  public void saveUserDetails(String authorizationCode, HttpSession httpSession) {
+  public void authenticateBungieUser(String authorizationCode, HttpSession httpSession) {
     MultiValueMap<String, String> tokenExchangeParameters = OAuth2Util.buildTokenExchangeParameters(
         authorizationCode, bungieConfiguration.getCallbackUrl(),
         bungieConfiguration.getClientSecret(), bungieConfiguration.getClientId()

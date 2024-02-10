@@ -9,14 +9,12 @@ import com.danielvm.destiny2bot.dto.destiny.manifest.ManifestFields;
 import com.danielvm.destiny2bot.dto.destiny.membership.MembershipResponse;
 import com.danielvm.destiny2bot.enums.ManifestEntity;
 import com.danielvm.destiny2bot.exception.ExternalServiceException;
-import com.danielvm.destiny2bot.exception.InternalServerException;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import com.danielvm.destiny2bot.util.MembershipUtil;
 import com.danielvm.destiny2bot.util.OAuth2Util;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
@@ -66,8 +64,8 @@ public class BungieAPIService {
     return reactiveBungieClient.getMembershipInfoForCurrentUser(bearerToken)
         .filter(Objects::nonNull)
         .filter(membership ->
-            Objects.nonNull(MembershipUtil.extractMembershipType(membership))
-            && Objects.nonNull(MembershipUtil.extractMembershipId(membership)))
+            MembershipUtil.extractMembershipType(membership) != null
+            && MembershipUtil.extractMembershipId(membership) != null)
         .switchIfEmpty(Mono.error(
             new ResourceNotFoundException("Membership information for the user [%s] is invalid")));
   }
@@ -84,13 +82,11 @@ public class BungieAPIService {
       ManifestEntity entityType, Long hashIdentifier) {
     var response = imperativeBungieClient.getManifestEntity(entityType.getId(), hashIdentifier)
         .getBody();
-    if (Objects.isNull(response) || Objects.isNull(response.getResponse()) || Objects.isNull(
-        response.getResponse().getDisplayProperties()) || Objects.isNull(
-        response.getResponse().getDisplayProperties().getName())) {
+    if (Objects.isNull(response) || Objects.isNull(response.getResponse())) {
       String errorMessage = "The manifest entity for activity of type [%s] with hash [%s] returned a null for a required field"
           .formatted(entityType, hashIdentifier);
       log.error(errorMessage);
-      throw new InternalServerException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new ExternalServiceException(errorMessage);
     }
     return response.getResponse();
   }
@@ -106,7 +102,7 @@ public class BungieAPIService {
     BungieResponse<PostGameCarnageReport> report = pgcrBungieClient.getPostCarnageReport(
         OAuth2Util.formatBearerToken(accessToken), activityInstance
     ).getBody();
-    if (Objects.isNull(report) || Objects.isNull(report.getResponse())) {
+    if (report == null || report.getResponse() == null) {
       String errorMessage = "A PGCR for a given raid did not include some required details. Raid instance [%s]"
           .formatted(activityInstance);
       log.error(errorMessage);

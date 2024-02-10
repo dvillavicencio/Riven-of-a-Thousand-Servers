@@ -8,9 +8,9 @@ import java.nio.charset.StandardCharsets;
 import org.mockito.Mockito;
 import org.springframework.core.io.Resource;
 
-public class TestUtils {
+public class ResourceUtils {
 
-  private TestUtils() {
+  private ResourceUtils() {
   }
 
   /**

@@ -261,7 +261,7 @@ public class UserRegistrationServiceTest {
         ResponseEntity.ok(membershipResponse));
 
     // when: save user details is called
-    sut.saveUserDetails(authCode, mockSession);
+    sut.authenticateBungieUser(authCode, mockSession);
 
     // then: the correct interactions happens
     verify(bungieClient, times(1)).getAccessToken(tokenParameters);
@@ -287,7 +287,7 @@ public class UserRegistrationServiceTest {
     // when: save user details is called
     // then: the appropriate exception is thrown with the correct message
     assertThrows(InternalServerException.class,
-        () -> sut.saveUserDetails(authCode, mockSession),
+        () -> sut.authenticateBungieUser(authCode, mockSession),
         "Token response parameters from Discord were returned as null");
 
     // then: the correct interactions happens
@@ -315,7 +315,7 @@ public class UserRegistrationServiceTest {
     // when: save user details is called
     // then: the appropriate exception is thrown with the correct message
     assertThrows(InternalServerException.class,
-        () -> sut.saveUserDetails(authCode, mockSession),
+        () -> sut.authenticateBungieUser(authCode, mockSession),
         "Token response parameters from Discord were returned as null");
 
     // then: the correct interactions happens
@@ -346,7 +346,7 @@ public class UserRegistrationServiceTest {
     // when: save user details is called
     // then: the appropriate exception is thrown with the correct message
     assertThrows(InternalServerException.class,
-        () -> sut.saveUserDetails(authCode, mockSession),
+        () -> sut.authenticateBungieUser(authCode, mockSession),
         "Token response parameters from Discord were returned as null");
 
     // then: the correct interactions happens
@@ -379,7 +379,7 @@ public class UserRegistrationServiceTest {
     // when: save user details is called
     // then: the appropriate exception is thrown with the correct message
     assertThrows(InternalServerException.class,
-        () -> sut.saveUserDetails(authCode, mockSession),
+        () -> sut.authenticateBungieUser(authCode, mockSession),
         "Token response parameters from Discord were returned as null");
 
     // then: the correct interactions happens

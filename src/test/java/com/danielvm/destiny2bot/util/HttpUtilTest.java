@@ -3,7 +3,7 @@ package com.danielvm.destiny2bot.util;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.danielvm.destiny2bot.TestUtils;
+import com.danielvm.destiny2bot.ResourceUtils;
 import com.danielvm.destiny2bot.dto.discord.Attachment;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.enums.InteractionResponseType;
@@ -26,8 +26,8 @@ public class HttpUtilTest {
   public void prepareMultipartPayloadIsCorrectForRaidMapCommand() throws IOException {
     // given: An interaction response and an indexed map of classpath resources
     Map<Long, Resource> resources = Map.of(
-        0L, TestUtils.createPartialResource("kalli-plates.jpg", 1024L * 1024L, false),
-        1L, TestUtils.createPartialResource("kalli-dmg-phase.jpg", 1024L, false)
+        0L, ResourceUtils.createPartialResource("kalli-plates.jpg", 1024L * 1024L, false),
+        1L, ResourceUtils.createPartialResource("kalli-dmg-phase.jpg", 1024L, false)
     );
 
     List<Attachment> attachments = List.of(
@@ -100,8 +100,8 @@ public class HttpUtilTest {
   @DisplayName("Prepare multipart payload should throw the appropriate exception in case of I/O problems")
   public void shouldThrowAppropriateExceptionsInIOErrors() throws IOException {
     // given: an InteractionResponse and faulty files which might cause I/O processing errors
-    var firstResource = TestUtils.createPartialResource("kalli-plates.jpg", 1024L * 1024L, true);
-    var secondResource = TestUtils.createPartialResource("kalli-dmg-phase.jpg", 1024L, true);
+    var firstResource = ResourceUtils.createPartialResource("kalli-plates.jpg", 1024L * 1024L, true);
+    var secondResource = ResourceUtils.createPartialResource("kalli-dmg-phase.jpg", 1024L, true);
     Map<Long, Resource> resources = Map.of(0L, firstResource, 1L, secondResource);
 
     List<Attachment> attachments = List.of(

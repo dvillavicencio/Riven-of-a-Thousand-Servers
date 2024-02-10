@@ -134,6 +134,10 @@ public class UserRaidDataService {
         notLastPage = indexCharacter(user, character, pageNumber++, characterIndexing);
       } catch (Throwable throwable) {
         notLastPage = false;
+        String characterDescription =
+            character.getDestinyClass() + " - " + character.getLightLevel();
+        log.error("Something wrong happened when indexing character [{}] for user [{}]",
+            characterDescription, user.getDiscordUsername(), throwable);
         discordStatusMessageService.updateStatusMessage(character, IndexingStatus.ERROR);
       }
     }
