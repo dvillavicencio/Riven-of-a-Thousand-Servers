@@ -40,19 +40,18 @@ import software.pando.crypto.nacl.Crypto;
 @Testcontainers
 public abstract class BaseIntegrationTest {
 
+  static final String MALICIOUS_PRIVATE_KEY = "CE4517095255B0C92D586AF9EEC27B998D68775363F9FE74341483FB3A657CEC";
+  static final String VALID_PRIVATE_KEY = "F0EA3A0516695324C03ED552CD5A08A58CA1248172E8816C3BF235E52E75A7BF";
   @Container
-  public static final PostgreSQLContainer<?> POSTGRES_SQL_CONTAINER = new PostgreSQLContainer<>(
+  static GenericContainer<?> REDIS_CONTAINER = new GenericContainer<>(
+      "redis:5.0.3-alpine")
+      .withExposedPorts(6379);
+  @Container
+  static PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
       "postgres:16.1")
       .withDatabaseName("riven_of_a_thousand_servers")
       .withUsername("username")
       .withPassword("password");
-
-  @Container
-  private static final GenericContainer<?> REDIS_CONTAINER = new GenericContainer<>(
-      "redis:5.0.3-alpine").withExposedPorts(6379);
-
-  private static final String MALICIOUS_PRIVATE_KEY = "CE4517095255B0C92D586AF9EEC27B998D68775363F9FE74341483FB3A657CEC";
-  private static final String VALID_PRIVATE_KEY = "F0EA3A0516695324C03ED552CD5A08A58CA1248172E8816C3BF235E52E75A7BF";
 
   @LocalServerPort
   protected int localServerPort;
@@ -82,6 +81,9 @@ public abstract class BaseIntegrationTest {
   public static void setup(DynamicPropertyRegistry registry) {
     registry.add("spring.data.redis.port", REDIS_CONTAINER::getFirstMappedPort);
     registry.add("spring.data.redis.host", REDIS_CONTAINER::getHost);
+    registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
+    registry.add("spring.datasource.username", POSTGRES::getUsername);
+    registry.add("spring.datasource.password", POSTGRES::getPassword);
   }
 
   /**

@@ -2,10 +2,6 @@ spring:
   data:
     redis:
       port: 6379
-  datasource:
-    url: jdbc:tc:postgresql:16.1:///riven_of_a_thousand_servers
-    username: username
-    password: password
   flyway:
     url: jdbc:tc:postgresql:16.1:///riven_of_a_thousand_servers
     enabled: true
@@ -19,8 +15,8 @@ bungie:
     clientSecret: 4289bd68-13e7-46d1-b7b6-9c0245abd745
     clientId: 2a20e240-4f2f-4c2c-8674-ade6f045012f
     baseUrl: http://localhost:8080/bungie
-    authorizationUrl: http://localhost:8080/en/oauth/authorize
-    tokenUrl: http://localhost:8080/platform/app/oauth/token/
+    authorizationUrl: http://localhost:8080/oauth/authorize
+    tokenUrl: http://localhost:8080/oauth/token/
     callbackUrl: http://localhost:${server.port}/bungie/callback
 
 discord:

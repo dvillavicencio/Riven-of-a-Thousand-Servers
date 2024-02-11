@@ -117,8 +117,7 @@ public class UserRegistrationService {
 
     MembershipResponse membershipInfo = MembershipUtil.verifyMembershipParameters(
         bungieClient.getMembershipForCurrentUser(
-            OAuth2Util.formatBearerToken(token.getAccessToken())),
-        discordUser).getBody();
+            OAuth2Util.formatBearerToken(token.getAccessToken())), discordUser).getBody();
 
     Long membershipId = MembershipUtil.extractMembershipId(membershipInfo);
     Integer membershipType = MembershipUtil.extractMembershipType(membershipInfo);

@@ -7,12 +7,16 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.danielvm.destiny2bot.config.BungieConfiguration;
+import com.danielvm.destiny2bot.util.OAuth2Params;
 import com.danielvm.destiny2bot.util.OAuth2Util;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +24,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 public class RegistrationControllerTest extends BaseIntegrationTest {
 
@@ -140,7 +145,51 @@ public class RegistrationControllerTest extends BaseIntegrationTest {
 
   @Test
   @DisplayName("authenticating bungie user is successful")
-  public void authenticatingBungieUserSuccess() {
+  public void authenticatingBungieUserSuccess() throws Exception {
+    // given: a valid Http session and a Bungie authorization code
+    String authorizationCode = "6890i90910-fkl3209;";
+    var request = MockMvcRequestBuilders.get("/bungie/callback")
+        .queryParam(OAuth2Params.CODE, authorizationCode)
+        .cookie(new Cookie("SESSION", "189yed1090-skp200"));
+
+    stubFor(post(urlPathEqualTo("/bungie/oauth2/token"))
+        .withHeader(HttpHeaders.CONTENT_TYPE,
+            containing(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON_VALUE))
+        .withRequestBody(containing("code=" + authorizationCode))
+        .withRequestBody(containing("grant_type=authorization_code"))
+        .withRequestBody(containing("client_secret=someClientSecret"))
+        .withRequestBody(containing("client_id=someClientId"))
+        .willReturn(aResponse()
+            .withStatus(200)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .withBodyFile("bungie/bungie-access-token.json")));
+
+    stubFor(get(urlPathEqualTo("/bungie/User/GetMembershipsForCurrentUser/"))
+        .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer someAccessToken"))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON_VALUE))
+        .willReturn(aResponse()
+            .withStatus(200)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .withBodyFile("bungie/bungie-membership-data.json")));
+
+    stubFor(get(urlPathEqualTo(
+        "/bungie/Destiny2/3/Profile/0884665266181166124/?components=200"))
+        .willReturn(aResponse()
+            .withStatus(200)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .withBodyFile("bungie/user-characters-response.json")));
+
+    // when: the request is received
+    var mvcResult = mockMvc.perform(request)
+        .andExpect(status().is2xxSuccessful())
+        .andExpect(request().asyncStarted())
+        .andExpect(request().asyncResult(Void.class))
+        .andReturn();
+
+    // then: the response returns a 204 no content status
+    mockMvc.perform(asyncDispatch(mvcResult))
+        .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
 
   }
 }
